@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Audit Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+:root{
+  --blue: #0F172A; /* Deep Navy */
+  --blue-accent: #3B82F6; /* Vibrant Blue */
+  --blue-glow: rgba(59, 130, 246, 0.5);
+  --white: #ffffff;
+  --bg: #F8FAFC;
+  --glass: rgba(255, 255, 255, 0.8);
+  --border: rgba(226, 232, 240, 0.8);
+  --text-main: #1E293B;
+  --text-muted: #64748B;
+  --green: #10B981;
+  --red: #EF4444;
+  --amber: #F59E0B;
+  --sidebar-w: 260px;
+  --topbar-h: 70px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --radius: 12px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-main);min-height:100vh;overflow-x:hidden;}
+
+/* ── LOGIN ── */
+#login-screen{
+  position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0a1a6e 0%,#123396 50%,#1a4fb3 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+.login-bg-pattern{
+  position:absolute;inset:0;opacity:.07;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,#fff 40px,#fff 41px),
+    repeating-linear-gradient(90deg,transparent,transparent 40px,#fff 40px,#fff 41px);
+}
+.login-card{
+  position:relative;background:var(--white);border-radius:20px;padding:3rem 2.5rem;width:420px;max-width:95vw;
+  box-shadow:0 40px 80px rgba(0,0,0,.35);
+  animation:loginDrop .6s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes loginDrop{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:2rem;}
+.login-logo-mark{width:46px;height:46px;background:var(--blue);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-1px;}
+.login-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--g700);}
+.login-logo-sub{font-size:11px;color:var(--g400);letter-spacing:.08em;text-transform:uppercase;}
+/* ── UTILITIES & TABLES ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+.three-col{display:grid;grid-template-columns:repeat(3, 1fr);gap:1.5rem;margin-bottom:1.5rem;}
+.section-divider{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text-main);padding-bottom:12px;border-bottom:2px solid var(--border);margin:2rem 0 1.5rem;display:flex;align-items:center;gap:10px;}
+
+.data-table-container{overflow-x:auto;background:var(--white);border-radius:var(--radius);border:1px solid var(--border);}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table th{background:var(--bg);padding:12px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:600;border-bottom:1px solid var(--border);}
+.data-table td{padding:14px 16px;border-bottom:1px solid var(--border);color:var(--text-main);}
+.data-table tr:hover td{background:rgba(59,130,246,0.02);}
+
+.status-pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px;}
+.pill-green{background:rgba(16,185,129,0.1);color:var(--green);}
+.pill-red{background:rgba(239,68,68,0.1);color:var(--red);}
+.pill-amber{background:rgba(245,158,11,0.1);color:var(--amber);}
+.pill-blue{background:rgba(59,130,246,0.1);color:var(--blue-accent);}
+
+.alert-ribbon{display:flex;flex-direction:column;gap:10px;margin-bottom:2rem;}
+.alert{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:var(--radius);font-size:13px;line-height:1.5;border:1px solid transparent;}
+.alert.crit{background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.2);color:#991B1B;}
+.alert.warn{background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.2);color:#92400E;}
+.alert.info{background:rgba(59,130,246,0.05);border-color:rgba(59,130,246,0.2);color:#1E40AF;}
+.alert.good{background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2);color:#065F46;}
+
+.h160{height:160px;}.h200{height:200px;}.h220{height:220px;}.h240{height:240px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.chart-card{animation:fadeUp 0.5s ease-out both;}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:1.5rem;width:fit-content;}
+.tab-btn{padding:8px 20px;border-radius:8px;border:none;background:transparent;font-family:inherit;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:0.2s;}
+.tab-btn.active{background:var(--white);color:var(--blue-accent);box-shadow:var(--shadow-md);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+
+.metric-list{display:flex;flex-direction:column;gap:12px;}
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.metric-row:last-child{border-bottom:none;padding-bottom:0;}
+.metric-name{font-size:13px;color:var(--text-muted);}
+.metric-val{font-size:13px;font-weight:600;}
+
+.risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.risk-cell{padding:12px;border-radius:10px;text-align:center;}
+.risk-count{font-size:24px;font-weight:800;font-family:'Syne';}
+.risk-label{font-size:11px;font-weight:600;text-transform:uppercase;opacity:0.8;}
+.risk-high{background:#FEE2E2;color:#991B1B;}
+.risk-medium{background:#FEF3C7;color:#92400E;}
+.risk-low{background:#D1FAE5;color:#065F46;}
+
+.login-title{font-family:'Syne',sans-serif;font-weight:700;font-size:24px;color:var(--g700);margin-bottom:.3rem;}
+.login-sub{font-size:13px;color:var(--g400);margin-bottom:2rem;line-height:1.6;}
+.field-group{margin-bottom:1.2rem;}
+.field-label{font-size:12px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;display:block;}
+.field-input{
+  width:100%;border:1.5px solid var(--g200);border-radius:10px;padding:11px 14px;
+  font-size:14px;font-family:'DM Sans',sans-serif;color:var(--g700);outline:none;
+  transition:border-color .2s,box-shadow .2s;background:var(--off);
+}
+.field-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(18,51,150,.1);}
+.login-err{background:var(--red-pale);color:var(--red);border:1px solid #f5a09a;border-radius:8px;padding:9px 13px;font-size:13px;margin-bottom:1rem;display:none;}
+.login-btn{
+  width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:13px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;
+  transition:all .2s;margin-top:.5rem;
+}
+.chat-input-area{
+  padding:1.5rem 2rem;background:var(--white);
+  border-top:1px solid var(--border);display:flex;gap:12px;
+  align-items:center;
+}
+.chat-input-wrapper{
+  flex:1;position:relative;display:flex;align-items:center;
+  background:var(--bg);border-radius:24px;border:1.5px solid var(--border);
+  padding:4px 8px 4px 16px;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+.chat-input-wrapper:focus-within{
+  border-color:var(--blue-accent);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.1), inset 0 2px 4px rgba(0,0,0,0.02);
+  background:var(--white);
+}
+.chat-input{
+  flex:1;border:none;background:transparent;padding:10px 0;
+  outline:none;font-size:14px;color:var(--text-main);
+  font-family:inherit;
+}
+.chat-attach-btn{
+  background:none;border:none;color:var(--text-muted);
+  cursor:pointer;padding:8px;display:flex;align-items:center;
+  transition:0.2s;border-radius:50%;
+}
+.chat-attach-btn:hover{background:rgba(0,0,0,0.05);color:var(--text-main);}
+.chat-send-btn{
+  width:38px;height:38px;border-radius:50%;background:var(--blue-accent);
+  color:#fff;border:none;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink:0;box-shadow:0 4px 10px rgba(59, 130, 246, 0.3);
+}
+.chat-send-btn:hover{transform:scale(1.1) translateY(-1px);background:var(--blue);box-shadow:0 6px 15px rgba(59, 130, 246, 0.4);}
+.chat-send-btn svg{width:18px;height:18px;margin-left:2px;}
+
+.login-btn:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 8px 20px rgba(18,51,150,.3);}
+.login-footer{font-size:11px;color:var(--g400);text-align:center;margin-top:1.5rem;}
+
+/* ── UPLOAD SCREEN ── */
+#upload-screen{display:none;position:fixed;inset:0;z-index:9998;background:var(--off);flex-direction:column;}
+.upload-topbar{
+  background:var(--white);border-bottom:1px solid var(--blue-mid);
+  padding:0 2rem;display:flex;align-items:center;justify-content:space-between;
+  height:60px;position:sticky;top:0;z-index:10;
+}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:36px;height:36px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;}
+.logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--g700);}
+.logo-tagline{font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;}
+.user-pill{display:flex;align-items:center;gap:8px;background:var(--blue-pale);border:1px solid var(--blue-mid);border-radius:20px;padding:5px 14px 5px 5px;font-size:13px;color:var(--g700);}
+.user-avatar{width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;}
+.upload-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;overflow-y:auto;}
+.upload-hero{text-align:center;max-width:580px;width:100%;}
+.upload-icon-big{width:72px;height:72px;background:var(--blue-pale);border:2px solid var(--blue-mid);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 1.5rem;}
+.upload-hero-title{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--g700);margin-bottom:.6rem;}
+.upload-hero-sub{font-size:14px;color:var(--g400);line-height:1.7;margin-bottom:2rem;}
+.doc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;text-align:left;margin-bottom:1.5rem;max-width:600px;width:100%;}
+.doc-item{
+  background:var(--white);border:1.5px dashed var(--blue-mid);border-radius:12px;
+  padding:.75rem 1rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;
+}
+.doc-item:hover{border-color:var(--blue);background:var(--blue-pale);}
+.doc-item.uploaded{border-style:solid;border-color:var(--green);background:var(--green-pale);}
+.doc-item input[type=file]{display:none;}
+.doc-icon{width:32px;height:32px;border-radius:8px;background:var(--g100);border:1px solid var(--g200);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:.2s;}
+.doc-item.uploaded .doc-icon{background:var(--green);border-color:var(--green);color:#fff;}
+.doc-name{font-size:12px;font-weight:600;color:var(--g700);}
+.doc-hint{font-size:11px;color:var(--g400);}
+.doc-item.uploaded .doc-hint{color:var(--green);}
+.upload-counter-bar{
+  background:var(--white);border:1px solid var(--g200);border-radius:10px;
+  padding:.75rem 1.2rem;display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;
+  max-width:600px;width:100%;
+}
+.dots{display:flex;gap:5px;}
+.dot-item{width:10px;height:10px;border-radius:50%;background:var(--g200);transition:.3s;}
+.dot-item.filled{background:var(--green);}
+.proceed-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:12px;
+  padding:13px 32px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;
+  transition:all .2s;opacity:.4;pointer-events:none;
+}
+.proceed-btn.ready{opacity:1;pointer-events:all;}
+.proceed-btn.ready:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 8px 24px rgba(18,51,150,.3);}
+.skip-btn{background:none;border:1px solid var(--g200);color:var(--g400);border-radius:10px;padding:10px 24px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:10px;transition:.2s;}
+.skip-btn:hover{border-color:var(--blue);color:var(--blue);}
+
+/* ── MAIN APP ── */
+#app{display:none;}
+.topbar{
+  height:var(--topbar-h);background:var(--glass);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);padding:0 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.topbar-center{
+  flex:1;max-width:400px;margin:0 2rem;
+}
+.search-box{
+  position:relative;width:100%;
+}
+.search-box input{
+  width:100%;background:var(--bg);border:1px solid var(--border);
+  padding:8px 12px 8px 35px;border-radius:20px;font-size:13px;
+  outline:none;transition:0.2s;
+}
+.search-box input:focus{border-color:var(--blue-accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;}
+
+.top-right{display:flex;align-items:center;gap:16px;}
+.logo{display:flex;align-items:center;gap:12px;transition: transform 0.2s;}
+.logo:hover{transform:scale(1.02);}
+.logo-mark{
+  width:40px;height:40px;background:var(--blue);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  box-shadow: 0 4px 12px var(--blue-glow);
+}
+.logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;}
+
+.layout{
+  display:grid;grid-template-columns:var(--sidebar-w) 1fr;
+  min-height:calc(100vh - var(--topbar-h));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.layout.collapsed{--sidebar-w: 80px;}
+.sidebar{
+  background:var(--white);border-right:1px solid var(--border);
+  padding:1.5rem 1rem;display:flex;flex-direction:column;gap:0.5rem;
+  position:relative;transition: inherit;
+  overflow-x: hidden;
+}
+.sidebar.collapsed{padding: 1.5rem 0.5rem;}
+.sidebar.collapsed .nav-item{justify-content: center; padding: 0.75rem 0; gap: 0;}
+.sidebar.collapsed .nav-item span.nav-text,
+.sidebar.collapsed .nav-section-title,
+.sidebar.collapsed .sidebar-upload-mini,
+.sidebar.collapsed .nav-badge {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+.sidebar-toggle{
+  position:absolute;top:20px;right:-12px;width:24px;height:24px;
+  background:var(--white);border:1px solid var(--border);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:var(--shadow-md);z-index:10;transition:0.3s;
+}
+
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:0.75rem 1rem;
+  border-radius:var(--radius);color:var(--text-muted);
+  font-weight:500;transition:0.2s;text-decoration:none;cursor:pointer;
+}
+.nav-item:hover, .nav-item.active{background:rgba(59,130,246,0.08);color:var(--blue-accent);}
+.nav-item.active{font-weight:600;}
+.nav-icon{font-size:18px;width:24px;text-align:center;}
+
+.content-area{padding:2rem;max-width:1600px;margin:0 auto;width:100%;}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+
+/* ── PROFESSIONAL CARDS ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1.5rem;margin-bottom:2rem;}
+.kpi-card{
+  position: relative;
+  background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.5rem;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:var(--shadow-sm);
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 4px; height: 100%;
+  background: var(--blue-accent);
+  opacity: 0.3;
+}
+.kpi-card.danger::before { background: var(--red); opacity: 1; }
+.kpi-card.warn::before { background: var(--amber); opacity: 1; }
+.kpi-card.good::before { background: var(--green); opacity: 1; }
+
+.kpi-card:hover{transform:translateY(-5px);box-shadow:0 12px 24px rgba(0,0,0,0.06); border-color: var(--blue-accent);}
+.kpi-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;margin-bottom:10px;}
+.kpi-value{font-family:'Syne',sans-serif;font-weight:800;font-size:32px; color: var(--blue); line-height: 1.2;}
+.kpi-change{margin-top: 10px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;}
+.kpi-change.up { color: var(--green); }
+.kpi-change.down { color: var(--red); }
+.kpi-change.neutral { color: var(--text-muted); }
+
+/* ── SUB-NAVBAR ── */
+.sub-navbar {
+  display: flex;
+  gap: 1rem;
+  background: var(--white);
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: fixed;
+  bottom: 0;
+  left: var(--sidebar-w);
+  right: 0;
+  z-index: 200;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.content-area { padding-bottom: 80px; } /* Space for fixed bottom navbar */
+.sub-navbar::-webkit-scrollbar { display: none; }
+.sub-nav-item {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+.sub-nav-item:hover { color: var(--blue-accent); background: rgba(59,130,246,0.05); }
+.sub-nav-item.active { color: var(--blue-accent); background: rgba(59,130,246,0.1); }
+
+/* ── EXCEL TABLE ── */
+.excel-table-container {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: auto;
+  max-height: 600px;
+}
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.excel-table th {
+  position: sticky; top: 0;
+  background: var(--bg);
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  z-index: 10;
+}
+.excel-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.excel-table tr:hover td { background: rgba(0,0,0,0.02); }
+
+/* ── SIDEBAR EXCEL ── */
+.sidebar-excel-group { margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+.excel-sheet-item {
+  padding: 6px 16px 6px 40px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: 0.2s;
+}
+.excel-sheet-item:hover { color: var(--blue-accent); }
+.excel-sheet-item.active { color: var(--blue-accent); font-weight: 600; }
+
+
+
+.chart-card{
+  background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.5rem;box-shadow:var(--shadow-sm);
+}
+
+/* ── MOBILE / TABLET OPTIMIZATION ── */
+@media(max-width:1024px){
+  .layout{grid-template-columns:80px 1fr;}
+  .sidebar .nav-item span:not(.nav-icon){display:none;}
+  .sidebar .nav-section-title, .sidebar .sidebar-upload-mini, .sidebar-toggle{display:none;}
+  .chat-window{width:calc(100% - 80px);}
+}
+
+@media(max-width:768px){
+  .topbar{padding:0 1rem;}
+  .topbar-center{display:none;}
+  .layout{grid-template-columns:1fr;display:block;}
+  .sidebar{
+    position:fixed;bottom:0;left:0;right:0;height:70px;
+    flex-direction:row;justify-content:space-around;padding:0;
+    z-index:200;border-right:none;border-top:1px solid var(--border);
+  }
+  .sidebar .nav-item{flex-direction:column;gap:4px;padding:10px;font-size:10px;}
+  .sidebar .nav-icon{font-size:20px;margin:0;}
+  .content-area{padding:1rem;padding-bottom:100px;}
+  .two-col, .three-col, .kpi-strip{grid-template-columns:1fr;}
+  .chat-window{width:100%;top:0;height:100%;z-index:300;}
+  .logo-tagline{display:none;}
+  .user-pill span{display:none;}
+  .sub-navbar {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    left: 0;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+  }
+  .sub-nav-item {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  .doc-grid { grid-template-columns: 1fr !important; }
+  .upload-body { padding: 1rem; flex-direction: column !important; }
+  .upload-body > div { max-width: 100% !important; flex: none !important; }
+  .upload-hero-title { font-size: 20px; }
+  .excel-table th, .excel-table td { padding: 8px 10px; font-size: 11px; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .audit-score-ring { align-self: center; }
+}
+
+/* Hide navbar when chat is open */
+body.chat-open .sub-navbar {
+  display: none !important;
+}
+
+
+}
+
+/* ── LOADING OVERLAY ── */
+#loading-overlay{
+  position:fixed;inset:0;background:rgba(255,255,255,0.95);z-index:10000;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  backdrop-filter:blur(10px);
+}
+.loader-bar{width:240px;height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin:1.5rem 0;}
+.loader-progress{width:0%;height:100%;background:var(--blue-accent);animation:loadMove 3s linear forwards;}
+@keyframes loadMove{from{width:0%}to{width:100%}}
+.loader-text{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--blue);}
+.loader-sub{font-size:13px;color:var(--text-muted);margin-top:8px;}
+
+/* ── CHAT IMPROVEMENTS ── */
+.chat-window{
+  position:fixed;top:var(--topbar-h);right:-100%;bottom:0;
+  width:calc(100% - var(--sidebar-w));
+  background:var(--white);box-shadow:var(--shadow-lg);
+  z-index:150;transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: row; 
+}
+#main-layout.collapsed ~ #chat-window {
+  width: calc(100% - 80px);
+}
+.chat-main-area{flex:1;display:flex;flex-direction:column;}
+.chat-window.open{right:0;}
+.chat-header{
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--white);
+}
+.chat-body{
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.chat-bubble{border-radius:18px;max-width:85%;padding: 12px 16px; font-size: 14px; line-height: 1.5;}
+
+.chat-bubble.ai{background:var(--bg);border-bottom-left-radius:4px;}
+.chat-bubble.user{background:var(--blue-accent);color:#fff;border-bottom-right-radius:4px;}
+
+.chat-suggestions-panel{
+  width:260px;background:var(--bg);border-left:1px solid var(--border);
+  padding:1.5rem;display:flex;flex-direction:column;gap:1rem;
+}
+.suggestion-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px;}
+.suggestion-btn{
+  background:var(--white);border:1px solid var(--border);padding:10px 14px;border-radius:10px;
+  font-size:12px;color:var(--text-main);cursor:pointer;text-align:left;transition:0.2s;line-height:1.4;
+}
+.suggestion-btn:hover{border-color:var(--blue-accent);background:rgba(59,130,246,0.05);transform:translateX(5px);}
+
+.chat-btn-modern {
+  background: var(--blue-accent);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 24px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+.chat-btn-modern:hover {
+  background: var(--blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
+}
+
+/* ── STAGGER ANIM ── */
+.chart-card:nth-child(1){animation-delay:.05s}
+.chart-card:nth-child(2){animation-delay:.10s}
+.chart-card:nth-child(3){animation-delay:.15s}
+
+/* ── SCORE RING IMPROVEMENTS ── */
+.audit-score-ring {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.12);
+  padding: 5px;
+}
+.audit-score-ring svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+.score-inner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.score-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--blue-accent);
+  line-height: 1;
+}
+.score-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+}
+
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ LOGIN ═══════════════════════════ -->
+<div id="login-screen">
+  <div class="login-bg-pattern"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+      <div>
+        <div class="login-logo-text">Audit Intelligence</div>
+        <div class="login-logo-sub">AI-Powered Compliance</div>
+      </div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Sign in to access your audit dashboard and AI-powered controls.</div>
+    <div id="login-err" class="login-err">❌ Invalid credentials. Please check your email and password.</div>
+    <div class="field-group">
+      <label class="field-label">Email Address</label>
+      <input class="field-input" id="login-email" type="email" placeholder="admin@audit-ai.com" value="admin@audit-ai.com">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Password</label>
+      <input class="field-input" id="login-pass" type="password" placeholder="••••••••" value="Admin@123">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-footer">🔒 Secured · AI Audit Platform · v1.0.0</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ UPLOAD SCREEN ═══════════════════════════ -->
+<div id="upload-screen">
+    <div class="upload-topbar">
+      <div class="logo">
+        <div class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+        <div>
+          <div class="logo-name">Audit Intelligence</div>
+          <div class="logo-tagline">AI Audit Intelligence</div>
+        </div>
+      </div>
+    <div class="user-pill" style="padding:4px;border:none;background:none;">
+      <div class="user-avatar" style="width:32px;height:32px;background:var(--blue-accent);box-shadow:0 0 10px rgba(59,130,246,0.3);">AD</div>
+    </div>
+  </div>
+
+  <div class="upload-body" style="flex-direction:row;gap:3rem;max-width:1400px;margin:0 auto;">
+    <!-- Side Info Panel for Fuller Look -->
+    <div style="flex:1;max-width:400px;display:flex;flex-direction:column;gap:1.5rem;text-align:left;">
+      <div style="background:var(--white);padding:2rem;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:1rem;color:var(--blue);">Audit Requirements</div>
+        <div style="font-size:14px;color:var(--text-muted);line-height:1.6;">
+          To ensure 100% compliance coverage, please upload the primary financial documents. Our AI will cross-verify data across 13 distinct control points.
+        </div>
+        <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-main);"><span style="color:var(--green);">✔</span> 3-Way Matching</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-main);"><span style="color:var(--green);">✔</span> Ghost Employee Detection</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-main);"><span style="color:var(--green);">✔</span> Conflict of Interest Screening</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-main);"><span style="color:var(--green);">✔</span> Segregation of Duties (SoD)</div>
+        </div>
+      </div>
+      <div style="background:rgba(59,130,246,0.05);padding:1.5rem;border-radius:var(--radius);border:1px dashed var(--blue-accent);">
+        <div style="font-weight:700;font-size:13px;color:var(--blue-accent);margin-bottom:4px;">✨ Pro Tip</div>
+        <div style="font-size:12px;color:var(--text-muted);">You can drag and drop multiple files directly into the zones on the right. Supported formats: .csv, .xlsx, .pdf</div>
+      </div>
+    </div>
+
+    <!-- Main Upload Area -->
+    <div class="upload-hero" style="flex:2;">
+      <div class="upload-icon-big" style="margin-top:0;">📂</div>
+      <div class="upload-hero-title">Initialize AI Audit Analysis</div>
+      <div class="upload-hero-sub">
+        Upload documents or proceed with the <strong>Demo</strong> to see sample data.
+      </div>
+
+      <div class="upload-counter-bar" style="margin-left:auto;margin-right:auto;">
+        <div class="dots">
+          <div class="dot-item" id="ud0"></div>
+          <div class="dot-item" id="ud1"></div>
+          <div class="dot-item" id="ud2"></div>
+          <div class="dot-item" id="ud3"></div>
+          <div class="dot-item" id="ud4"></div>
+          <div class="dot-item" id="ud5"></div>
+          <div class="dot-item" id="ud6"></div>
+          <div class="dot-item" id="ud7"></div>
+          <div class="dot-item" id="ud8"></div>
+          <div class="dot-item" id="ud9"></div>
+          <div class="dot-item" id="ud10"></div>
+          <div class="dot-item" id="ud11"></div>
+          <div class="dot-item" id="ud12"></div>
+        </div>
+        <span id="upload-count-text" style="font-size:12px;color:var(--text-muted);">0 of 13 documents uploaded</span>
+      </div>
+
+      <div class="doc-grid" style="grid-template-columns:repeat(3,1fr);max-width:900px;margin-left:auto;margin-right:auto;">
+        <!-- 13 upload zones -->
+        <label class="doc-item" id="dz0" for="df0"><div class="doc-icon" id="di0">📄</div><div><div class="doc-name">PO Data</div><div class="doc-hint" id="dh0">Ready</div></div><input type="file" id="df0" onchange="markUpload(0)"></label>
+        <label class="doc-item" id="dz1" for="df1"><div class="doc-icon" id="di1">📦</div><div><div class="doc-name">GRN</div><div class="doc-hint" id="dh1">Ready</div></div><input type="file" id="df1" onchange="markUpload(1)"></label>
+        <label class="doc-item" id="dz2" for="df2"><div class="doc-icon" id="di2">💳</div><div><div class="doc-name">Invoice Data</div><div class="doc-hint" id="dh2">Ready</div></div><input type="file" id="df2" onchange="markUpload(2)"></label>
+        <label class="doc-item" id="dz3" for="df3"><div class="doc-icon" id="di3">🏢</div><div><div class="doc-name">Vendor Master</div><div class="doc-hint" id="dh3">Ready</div></div><input type="file" id="df3" onchange="markUpload(3)"></label>
+        <label class="doc-item" id="dz4" for="df4"><div class="doc-icon" id="di4">📊</div><div><div class="doc-name">Inventory</div><div class="doc-hint" id="dh4">Ready</div></div><input type="file" id="df4" onchange="markUpload(4)"></label>
+        <label class="doc-item" id="dz5" for="df5"><div class="doc-icon" id="di5">✅</div><div><div class="doc-name">Approval Logs</div><div class="doc-hint" id="dh5">Ready</div></div><input type="file" id="df5" onchange="markUpload(5)"></label>
+        <label class="doc-item" id="dz6" for="df6"><div class="doc-icon" id="di6">⚠️</div><div><div class="doc-name">Exception Logs</div><div class="doc-hint" id="dh6">Ready</div></div><input type="file" id="df6" onchange="markUpload(6)"></label>
+        <label class="doc-item" id="dz7" for="df7"><div class="doc-icon" id="di7">📃</div><div><div class="doc-name">Contracts</div><div class="doc-hint" id="dh7">Ready</div></div><input type="file" id="df7" onchange="markUpload(7)"></label>
+        <label class="doc-item" id="dz8" for="df8"><div class="doc-icon" id="di8">🏭</div><div><div class="doc-name">Fixed Assets</div><div class="doc-hint" id="dh8">Ready</div></div><input type="file" id="df8" onchange="markUpload(8)"></label>
+        <label class="doc-item" id="dz9" for="df9"><div class="doc-icon" id="di9">👥</div><div><div class="doc-name">Payroll & HR</div><div class="doc-hint" id="dh9">Ready</div></div><input type="file" id="df9" onchange="markUpload(9)"></label>
+        <label class="doc-item" id="dz10" for="df10"><div class="doc-icon" id="di10">📒</div><div><div class="doc-name">GL Data</div><div class="doc-hint" id="dh10">Ready</div></div><input type="file" id="df10" onchange="markUpload(10)"></label>
+        <label class="doc-item" id="dz11" for="df11"><div class="doc-icon" id="di11">🏦</div><div><div class="doc-name">Bank Recon</div><div class="doc-hint" id="dh11">Ready</div></div><input type="file" id="df11" onchange="markUpload(11)"></label>
+        <label class="doc-item" id="dz12" for="df12"><div class="doc-icon" id="di12">❓</div><div><div class="doc-name">Audit Q/A</div><div class="doc-hint" id="dh12">Ready</div></div><input type="file" id="df12" onchange="markUpload(12)"></label>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:2rem;">
+        <button class="proceed-btn" id="proceed-btn" onclick="proceedToDashboard()">Analyse & Open Dashboard →</button>
+        <button class="skip-btn" onclick="autoFillDemo()" style="padding: 13px 32px; font-weight: 700;">Demo — Sample Data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ LOADING OVERLAY ═══════════════════════════ -->
+<div id="loading-overlay">
+  <div class="loader-text">AI Audit Intelligence</div>
+  <div class="loader-sub">Analyzing documents and generating risk assessment...</div>
+  <div class="loader-bar"><div class="loader-progress"></div></div>
+
+</div>
+
+</div>
+
+<!-- ═══════════════════════════ MAIN APP ═══════════════════════════ -->
+<div id="app">
+  <nav class="topbar">
+    <div class="logo">
+      <div class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+      <div>
+        <div class="logo-name">Audit Intelligence</div>
+        <div class="logo-tagline">AI Audit Intelligence Platform</div>
+      </div>
+    </div>
+
+    <div class="top-right">
+      <button class="chat-btn-modern" onclick="toggleChat()">
+        <span>✨</span> <span>AI Assistant</span>
+      </button>
+      <div class="user-pill" style="padding:4px;border:none;background:none;">
+        <div class="user-avatar" style="width:32px;height:32px;background:var(--blue-accent);box-shadow:0 0 10px rgba(59,130,246,0.3);">AD</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()" style="background:none;border:none;color:var(--text-muted);font-weight:600;padding:0;text-transform:uppercase;letter-spacing:1px;font-size:10px;">Logout</button>
+    </div>
+  </nav>
+
+  <div class="layout" id="main-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-toggle" onclick="toggleSidebar()">←</div>
+      <div class="nav-section-title">Dashboard</div>
+      <div class="nav-item active" onclick="showTab('overview')"><span class="nav-icon">🏠</span> <span class="nav-text">Overview</span></div>
+      
+      <div class="sidebar-excel-group">
+        <div class="nav-section-title">Excel Data</div>
+        <div class="nav-item" onclick="toggleExcelDropdown()">
+          <span class="nav-icon">📊</span> <span class="nav-text" style="font-size:11px;">AI_Audit_Sample.xlsx</span>
+        </div>
+        <div id="excel-sheets-list" style="display:none; flex-direction:column;">
+          <!-- Sheets will be injected here -->
+        </div>
+      </div>
+
+
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content-area">
+      
+      <!-- ── OVERVIEW TAB ── -->
+      <div class="tab-panel active" id="tab-overview">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Audit AI Intelligence</div>
+          </div>
+          <div class="audit-score-ring">
+            <svg viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(59, 130, 246, 0.1)" stroke-width="6"/>
+              <circle id="score-arc" cx="40" cy="40" r="34" fill="none" stroke="var(--blue-accent)" stroke-width="6"
+                stroke-dasharray="213.6" stroke-dashoffset="60" stroke-linecap="round" 
+                style="filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.4));"/>
+            </svg>
+            <div class="score-inner">
+              <div class="score-num">72</div>
+              <div class="score-label">Score</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi-card danger">
+            <div class="kpi-label">Critical Flags</div>
+            <div class="kpi-value">23</div>
+            <div class="kpi-change down">↑ 8 from last audit</div>
+          </div>
+          <div class="kpi-card warn">
+            <div class="kpi-label">High Risk Items</div>
+            <div class="kpi-value">41</div>
+            <div class="kpi-change neutral">→ Requires review</div>
+          </div>
+          <div class="kpi-card good">
+            <div class="kpi-label">3-Way Match Rate</div>
+            <div class="kpi-value">94.2%</div>
+            <div class="kpi-change up">↑ 2.1% improvement</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Vendor Count</div>
+            <div class="kpi-value">218</div>
+            <div class="kpi-change neutral">→ 12 new this FY</div>
+          </div>
+          <div class="kpi-card purple">
+            <div class="kpi-label">SoD Violations</div>
+            <div class="kpi-value">6</div>
+            <div class="kpi-change down">↑ Needs action</div>
+          </div>
+        </div>
+
+        <div class="alert-ribbon">
+          <div class="alert crit"><div class="alert-icon">🚨</div><div><strong>CRITICAL:</strong> 3 SoD violations found — same employee is both initiator and approver for POs totalling ₹4.2 Cr. Immediate review required.</div></div>
+          <div class="alert crit"><div class="alert-icon">🚨</div><div><strong>CRITICAL:</strong> Invoice INV-ABC-2024-9923 (₹2.5L) marked paid before GRN confirmation. Possible payment fraud risk.</div></div>
+          <div class="alert warn"><div class="alert-icon">⚠️</div><div><strong>HIGH:</strong> 7 unreconciled items in bank recon older than 90 days totalling ₹54,611. Escalation recommended.</div></div>
+          <div class="alert info"><div class="alert-icon">ℹ️</div><div><strong>INFO:</strong> Vendor VND-00892 annual spend (₹12.5 Cr) exceeds 40% of raw material category spend — concentration risk.</div></div>
+          <div class="alert good"><div class="alert-icon">✅</div><div><strong>GOOD:</strong> QC pass rate maintained at 98.4%. Depreciation calculations verified error-free across all 847 fixed assets.</div></div>
+        </div>
+
+        <div class="section-divider">📊 Risk Distribution by Process Area</div>
+        <div class="two-col">
+          <div class="chart-card">
+            <div class="card-title">🎯 Risk Heatmap — Area-wise <span class="card-badge badge-red">23 Critical</span></div>
+            <div class="h220"><canvas id="riskBarChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">🕸️ Compliance Spider — 6 Dimensions</div>
+            <div class="h220"><canvas id="radarChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="three-col">
+          <div class="chart-card">
+            <div class="card-title">🔴 Risk Level Summary</div>
+            <div class="risk-grid" style="margin-top:6px;">
+              <div class="risk-cell risk-high" style="grid-column:span 3"><div class="risk-count">23</div><div class="risk-label">Critical Issues</div></div>
+              <div class="risk-cell risk-medium" style="grid-column:span 2"><div class="risk-count">41</div><div class="risk-label">High Risk</div></div>
+              <div class="risk-cell risk-low"><div class="risk-count">87</div><div class="risk-label">Medium</div></div>
+            </div>
+          </div>
+          <div class="chart-card" style="grid-column:span 2">
+            <div class="card-title">📈 Monthly Exception Trend</div>
+            <div class="h160"><canvas id="trendChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="section-divider">📋 Recent Audit Findings</div>
+        <div class="chart-card">
+        <div class="data-table-container">
+            <table class="data-table">
+              <thead><tr><th>Finding ID</th><th>Area</th><th>Description</th><th>Risk</th><th>Status</th><th>Assigned To</th></tr></thead>
+              <tbody>
+                <tr><td>AUD-2024-001</td><td>Procurement</td><td>PO raised without PR — PO-2024-004521 (₹3.42 Cr)</td><td><span class="status-pill pill-red">Critical</span></td><td><span class="status-pill pill-amber">Open</span></td><td>EMP-1045</td></tr>
+                <tr><td>AUD-2024-002</td><td>AP / Invoice</td><td>Payment before GRN — INV-ABC-9923 (₹3.96 Cr)</td><td><span class="status-pill pill-red">Critical</span></td><td><span class="status-pill pill-amber">In Progress</span></td><td>EMP-2310</td></tr>
+                <tr><td>AUD-2024-003</td><td>Approval Logs</td><td>SoD Violation — Initiator = Approver (EMP-2310)</td><td><span class="status-pill pill-red">Critical</span></td><td><span class="status-pill pill-red">Escalated</span></td><td>CFO</td></tr>
+                <tr><td>AUD-2024-004</td><td>Vendor Master</td><td>Duplicate vendor — same PAN, 2 different IDs</td><td><span class="status-pill pill-amber">High</span></td><td><span class="status-pill pill-amber">Open</span></td><td>EMP-0912</td></tr>
+                <tr><td>AUD-2024-005</td><td>Inventory</td><td>Book vs. physical variance: 5 MT (₹34,250) — RM-STL-CR-002</td><td><span class="status-pill pill-amber">High</span></td><td><span class="status-pill pill-blue">Resolved</span></td><td>EMP-2210</td></tr>
+                <tr><td>AUD-2024-006</td><td>GL Data</td><td>Manual JE posted post-closing: JE-2024-032145 (₹5.82 Cr)</td><td><span class="status-pill pill-amber">High</span></td><td><span class="status-pill pill-amber">In Progress</span></td><td>EMP-1230</td></tr>
+                <tr><td>AUD-2024-007</td><td>Payroll</td><td>Ghost employee flag — Active salary, zero attendance (EMP-4422)</td><td><span class="status-pill pill-red">Critical</span></td><td><span class="status-pill pill-red">Escalated</span></td><td>HR Head</td></tr>
+              </tbody>
+            </table>
+        </div>
+        </div>
+        <div class="footer-row">Audit Intelligence AI Platform · Prototype v1.0 · Data: Static Sample (FY2024)</div>
+      </div>
+
+      <!-- ── PROCUREMENT TAB ── -->
+      <div class="tab-panel" id="tab-procurement">
+        <div class="page-header"><div><div class="page-title">Procurement & Purchase Orders</div><div class="page-sub">AI-verified PO controls · 3-way match · Approval hierarchy</div></div></div>
+
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card good"><div class="kpi-label">Total POs (FY24)</div><div class="kpi-value">1,842</div><div class="kpi-change up">↑ 12% YoY</div></div>
+          <div class="kpi-card danger"><div class="kpi-label">POs w/o PR</div><div class="kpi-value">14</div><div class="kpi-change down">Critical flag</div></div>
+          <div class="kpi-card warn"><div class="kpi-label">Split PO Suspects</div><div class="kpi-value">7</div><div class="kpi-change down">Under review</div></div>
+          <div class="kpi-card good"><div class="kpi-label">Price Compliance</div><div class="kpi-value">97.3%</div><div class="kpi-change up">↑ 1.4%</div></div>
+        </div>
+
+        <div class="two-col">
+          <div class="chart-card">
+            <div class="card-title">📊 PO Value by Category (₹ Cr)</div>
+            <div class="h220"><canvas id="poCatChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">✅ Approval Compliance by Level</div>
+            <div class="h220"><canvas id="approvalChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:14px">
+          <div class="card-title">🚩 Flagged PO Records</div>
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead><tr><th>PO Number</th><th>Vendor</th><th>Value</th><th>Issue</th><th>Approved By</th><th>Risk</th></tr></thead>
+              <tbody>
+                <tr><td>PO-2024-004521</td><td>ABC Steel Suppliers</td><td>₹3,42,50,000</td><td>PO date before PR date</td><td>EMP-1045</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+                <tr><td>PO-2024-004489</td><td>XYZ Logistics Pvt</td><td>₹98,00,000</td><td>No L2 approval (>₹50L)</td><td>EMP-1045 only</td><td><span class="status-pill pill-red">Critical</span></td></tr>
+                <tr><td>PO-2024-004201</td><td>ABC Steel Suppliers</td><td>₹49,80,000</td><td>Possible split PO (same day, same vendor)</td><td>EMP-1045</td><td><span class="status-pill pill-amber">High</span></td></tr>
+                <tr><td>PO-2024-004202</td><td>ABC Steel Suppliers</td><td>₹49,70,000</td><td>Possible split PO (same day, same vendor)</td><td>EMP-1045</td><td><span class="status-pill pill-amber">High</span></td></tr>
+                <tr><td>PO-2024-003900</td><td>MNO Services</td><td>₹12,50,000</td><td>Advance payment >30% without approval</td><td>EMP-2310</td><td><span class="status-pill pill-amber">High</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="card-title">📐 3-Way Match Summary — PO ↔ GRN ↔ Invoice</div>
+          <div class="two-col" style="margin:0">
+            <div>
+              <div class="prog-item"><div class="prog-header"><span class="prog-label">Fully Matched</span><span class="prog-pct">94.2%</span></div><div class="prog-track"><div class="prog-fill" style="width:94.2%;background:var(--green)"></div></div></div>
+              <div class="prog-item"><div class="prog-header"><span class="prog-label">Partial Match</span><span class="prog-pct">3.8%</span></div><div class="prog-track"><div class="prog-fill" style="width:3.8%;background:var(--amber)"></div></div></div>
+              <div class="prog-item"><div class="prog-header"><span class="prog-label">Mismatch / No Match</span><span class="prog-pct">2.0%</span></div><div class="prog-track"><div class="prog-fill" style="width:2%;background:var(--red)"></div></div></div>
+            </div>
+            <div class="metric-list">
+              <div class="metric-row"><span class="metric-name">Total Invoices</span><span class="metric-val">1,724</span></div>
+              <div class="metric-row"><span class="metric-name">Auto-matched</span><span class="metric-val">1,624</span></div>
+              <div class="metric-row"><span class="metric-name">Manual review</span><span class="metric-val">66</span></div>
+              <div class="metric-row"><span class="metric-name">Held / disputed</span><span class="metric-val">34</span></div>
+              <div class="metric-row"><span class="metric-name">Duplicate detected</span><span class="metric-val">5</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VENDOR TAB ── -->
+      <div class="tab-panel" id="tab-vendor">
+        <div class="page-header"><div><div class="page-title">Vendor Intelligence</div><div class="page-sub">218 active vendors · Risk screening · Conflict of interest</div></div></div>
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card good"><div class="kpi-label">Active Vendors</div><div class="kpi-value">218</div><div class="kpi-change neutral">→ 12 new</div></div>
+          <div class="kpi-card danger"><div class="kpi-label">Duplicates Found</div><div class="kpi-value">4</div><div class="kpi-change down">Same PAN/bank</div></div>
+          <div class="kpi-card warn"><div class="kpi-label">Empanelment Expiry</div><div class="kpi-value">11</div><div class="kpi-change down">Expiring in 30d</div></div>
+          <div class="kpi-card danger"><div class="kpi-label">COI Not Submitted</div><div class="kpi-value">19</div><div class="kpi-change down">Policy breach</div></div>
+        </div>
+        <div class="two-col">
+          <div class="chart-card">
+            <div class="card-title">🏢 Spend by Vendor Category</div>
+            <div class="h240"><canvas id="vendorSpendChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">⚠️ Vendor Risk Flags</div>
+            <div class="metric-list">
+              <div class="metric-row"><span class="metric-name">Same bank account (2+ vendors)</span><span class="metric-val"><span class="status-pill pill-red">3 pairs</span></span></div>
+              <div class="metric-row"><span class="metric-name">Same address (2+ vendors)</span><span class="metric-val"><span class="status-pill pill-red">2 pairs</span></span></div>
+              <div class="metric-row"><span class="metric-name">Employee phone = vendor phone</span><span class="metric-val"><span class="status-pill pill-red">1 case</span></span></div>
+              <div class="metric-row"><span class="metric-name">New vendor with >₹1Cr PO in 30d</span><span class="metric-val"><span class="status-pill pill-amber">2 vendors</span></span></div>
+              <div class="metric-row"><span class="metric-name">Blocked vendor with active PO</span><span class="metric-val"><span class="status-pill pill-red">1 PO</span></span></div>
+              <div class="metric-row"><span class="metric-name">Unregistered GST >₹5L</span><span class="metric-val"><span class="status-pill pill-amber">4 vendors</span></span></div>
+              <div class="metric-row"><span class="metric-name">Concentration risk (>40% category)</span><span class="metric-val"><span class="status-pill pill-amber">1 vendor</span></span></div>
+              <div class="metric-row"><span class="metric-name">Blacklist matched</span><span class="metric-val"><span class="status-pill pill-green">0 vendors</span></span></div>
+              <div class="metric-row"><span class="metric-name">COI declaration pending</span><span class="metric-val"><span class="status-pill pill-amber">19 vendors</span></span></div>
+              <div class="metric-row"><span class="metric-name">Soundex duplicate names</span><span class="metric-val"><span class="status-pill pill-amber">6 pairs</span></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="card-title">📋 Top 10 Vendors by Annual Spend</div>
+          <div class="h220"><canvas id="vendorBarChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- ── INVENTORY TAB ── -->
+      <div class="tab-panel" id="tab-inventory">
+        <div class="page-header"><div><div class="page-title">Inventory & GRN Controls</div><div class="page-sub">Stock accuracy · GRN-PO matching · Shrinkage analysis</div></div></div>
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card good"><div class="kpi-label">GRN-PO Match Rate</div><div class="kpi-value">97.8%</div><div class="kpi-change up">↑ 0.9%</div></div>
+          <div class="kpi-card warn"><div class="kpi-label">Book vs Physical Var.</div><div class="kpi-value">5 MT</div><div class="kpi-change down">₹34,250 loss</div></div>
+          <div class="kpi-card danger"><div class="kpi-label">GRNs w/o PO</div><div class="kpi-value">3</div><div class="kpi-change down">Zero tolerance</div></div>
+          <div class="kpi-card good"><div class="kpi-label">QC Pass Rate</div><div class="kpi-value">98.4%</div><div class="kpi-change up">↑ 1.2%</div></div>
+        </div>
+        <div class="two-col">
+          <div class="chart-card">
+            <div class="card-title">📦 Inventory Movement (MT)</div>
+            <div class="h220"><canvas id="invMovChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">⏳ Stock Ageing Analysis</div>
+            <div class="h220"><canvas id="ageingChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="card-title">🔍 GRN Exceptions</div>
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead><tr><th>GRN No.</th><th>PO Ref</th><th>Vendor</th><th>Received</th><th>Accepted</th><th>Rejected</th><th>QC</th><th>Flag</th></tr></thead>
+              <tbody>
+                <tr><td>GRN-2024-008901</td><td>PO-2024-004521</td><td>ABC Steel</td><td>498 MT</td><td>490 MT</td><td>8 MT</td><td><span class="status-pill pill-green">Passed</span></td><td><span class="status-pill pill-green">OK</span></td></tr>
+                <tr><td>GRN-2024-008777</td><td>—</td><td>XYZ Parts</td><td>120 MT</td><td>120 MT</td><td>0</td><td><span class="status-pill pill-amber">Pending</span></td><td><span class="status-pill pill-red">No PO</span></td></tr>
+                <tr><td>GRN-2024-008512</td><td>PO-2024-003901</td><td>MNO Steel</td><td>200 MT</td><td>210 MT</td><td>0</td><td><span class="status-pill pill-green">Passed</span></td><td><span class="status-pill pill-red">Accepted>Received</span></td></tr>
+                <tr><td>GRN-2024-008100</td><td>PO-2024-003450</td><td>PQR Supplies</td><td>50 MT</td><td>40 MT</td><td>10 MT</td><td><span class="status-pill pill-red">Failed</span></td><td><span class="status-pill pill-amber">High reject %</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FINANCIAL TAB ── -->
+      <div class="tab-panel" id="tab-financial">
+        <div class="page-header"><div><div class="page-title">Financial Controls</div><div class="page-sub">GL data · Bank reconciliation · Invoice & payment audit</div></div></div>
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card warn"><div class="kpi-label">Manual JEs (FY24)</div><div class="kpi-value">142</div><div class="kpi-change down">↑ 23 near period-end</div></div>
+          <div class="kpi-card danger"><div class="kpi-label">Backdated JEs</div><div class="kpi-value">9</div><div class="kpi-change down">Requires sign-off</div></div>
+          <div class="kpi-card warn"><div class="kpi-label">Bank Recon Gap</div><div class="kpi-value">₹54,611</div><div class="kpi-change neutral">→ 3 items >90d</div></div>
+          <div class="kpi-card good"><div class="kpi-label">Duplicate Invoices</div><div class="kpi-value">5</div><div class="kpi-change up">Blocked (₹18.2L)</div></div>
+        </div>
+        <div class="two-col">
+          <div class="chart-card">
+            <div class="card-title">💰 Bank Reconciliation Snapshot (Mar 2024)</div>
+            <div class="metric-list">
+              <div class="metric-row"><span class="metric-name">Opening Balance (Bank)</span><span class="metric-val">₹2,34,56,789</span></div>
+              <div class="metric-row"><span class="metric-name">Opening Balance (Books)</span><span class="metric-val">₹2,34,56,789</span></div>
+              <div class="metric-row"><span class="metric-name">Total Receipts (Bank)</span><span class="metric-val">₹18,45,23,100</span></div>
+              <div class="metric-row"><span class="metric-name">Total Receipts (Books)</span><span class="metric-val">₹18,43,15,000</span></div>
+              <div class="metric-row"><span class="metric-name">Total Payments (Bank)</span><span class="metric-val">₹17,92,34,500</span></div>
+              <div class="metric-row"><span class="metric-name">Total Payments (Books)</span><span class="metric-val">₹17,90,12,000</span></div>
+              <div class="metric-row"><span class="metric-name">Closing Balance (Bank)</span><span class="metric-val" style="color:var(--green)">₹2,87,45,389</span></div>
+              <div class="metric-row"><span class="metric-name">Closing Balance (Books)</span><span class="metric-val">₹2,88,00,000</span></div>
+              <div class="metric-row"><span class="metric-name" style="font-weight:600;color:var(--red)">Net Unreconciled Diff.</span><span class="metric-val" style="color:var(--red)">₹54,611</span></div>
+              <div class="metric-row"><span class="metric-name">Deposits in Transit</span><span class="metric-val">₹2,08,100</span></div>
+              <div class="metric-row"><span class="metric-name">Outstanding Cheques</span><span class="metric-val">₹1,62,711</span></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">📒 GL Journal Entry Analysis</div>
+            <div class="h200"><canvas id="glChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="card-title">🏭 Fixed Asset Register Summary</div>
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead><tr><th>Asset ID</th><th>Description</th><th>Category</th><th>Gross Block</th><th>Acc. Dep.</th><th>NBV</th><th>Physical Status</th></tr></thead>
+              <tbody>
+                <tr><td>AST-2024-00521</td><td>CNC Machining Center X5</td><td>P&M</td><td>₹85,00,000</td><td>₹6,37,500</td><td>₹78,62,500</td><td><span class="status-pill pill-green">Verified</span></td></tr>
+                <tr><td>AST-2023-00418</td><td>Industrial Compressor Unit</td><td>P&M</td><td>₹42,00,000</td><td>₹12,60,000</td><td>₹29,40,000</td><td><span class="status-pill pill-amber">Not Found</span></td></tr>
+                <tr><td>AST-2022-00301</td><td>Forklift — Pune WH-B</td><td>Vehicle</td><td>₹18,50,000</td><td>₹9,25,000</td><td>₹9,25,000</td><td><span class="status-pill pill-green">Verified</span></td></tr>
+                <tr><td>AST-2024-00519</td><td>Office Server Rack</td><td>IT Equipment</td><td>₹9,80,000</td><td>₹98,000</td><td>₹8,82,000</td><td><span class="status-pill pill-green">Verified</span></td></tr>
+                <tr><td>AST-2021-00190</td><td>Welding Station Set</td><td>P&M</td><td>₹7,20,000</td><td>₹4,32,000</td><td>₹2,88,000</td><td><span class="status-pill pill-amber">Partially Found</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAYROLL TAB ── -->
+      <div class="tab-panel" id="tab-payroll">
+        <div class="page-header"><div><div class="page-title">Payroll & HR Audit</div><div class="page-sub">Ghost employee detection · Statutory compliance · OT analysis</div></div></div>
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card"><div class="kpi-label">Total Headcount</div><div class="kpi-value">847</div><div class="kpi-change neutral">→ FY24</div></div>
+          <div class="kpi-card danger"><div class="kpi-label">Ghost Employee Flags</div><div class="kpi-value">1</div><div class="kpi-change down">Active salary, 0 attendance</div></div>
+          <div class="kpi-card warn"><div class="kpi-label">Unapproved OT</div><div class="kpi-value">34</div><div class="kpi-change down">Cases this FY</div></div>
+          <div class="kpi-card good"><div class="kpi-label">PF Compliance</div><div class="kpi-value">100%</div><div class="kpi-change up">All employees</div></div>
+        </div>
+        <div class="two-col">
+          <div class="chart-card">
+            <div class="card-title">💰 Salary Distribution by Department</div>
+            <div class="h220"><canvas id="salaryChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">⚠️ Payroll Risk Flags</div>
+            <div class="metric-list">
+              <div class="metric-row"><span class="metric-name">Ghost employee (active salary, 0 attendance)</span><span class="metric-val"><span class="status-pill pill-red">1 case</span></span></div>
+              <div class="metric-row"><span class="metric-name">Salary to terminated employee</span><span class="metric-val"><span class="status-pill pill-red">0 cases</span></span></div>
+              <div class="metric-row"><span class="metric-name">System access after exit date</span><span class="metric-val"><span class="status-pill pill-amber">2 cases</span></span></div>
+              <div class="metric-row"><span class="metric-name">Bank account changed near pay date</span><span class="metric-val"><span class="status-pill pill-amber">3 changes</span></span></div>
+              <div class="metric-row"><span class="metric-name">OT rate > 2x basic</span><span class="metric-val"><span class="status-pill pill-amber">7 employees</span></span></div>
+              <div class="metric-row"><span class="metric-name">Salary increase without HR approval</span><span class="metric-val"><span class="status-pill pill-amber">5 cases</span></span></div>
+              <div class="metric-row"><span class="metric-name">TDS under-deducted</span><span class="metric-val"><span class="status-pill pill-amber">12 employees</span></span></div>
+              <div class="metric-row"><span class="metric-name">PF contribution mismatch</span><span class="metric-val"><span class="status-pill pill-green">0 cases</span></span></div>
+              <div class="metric-row"><span class="metric-name">Negative leave balance</span><span class="metric-val"><span class="status-pill pill-amber">8 employees</span></span></div>
+              <div class="metric-row"><span class="metric-name">Duplicate employee ID</span><span class="metric-val"><span class="status-pill pill-green">0 cases</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── EXCEPTIONS TAB ── -->
+      <div class="tab-panel" id="tab-exceptions">
+        <div class="page-header"><div><div class="page-title">Exceptions & Override Logs</div><div class="page-sub">AI-detected anomalies · Escalation tracking · Resolution SLA</div></div></div>
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card danger"><div class="kpi-label">Open Criticals</div><div class="kpi-value">7</div><div class="kpi-change down">Breach SLA</div></div>
+          <div class="kpi-card warn"><div class="kpi-label">Total Open</div><div class="kpi-value">23</div><div class="kpi-change neutral">→ Avg 4.2d old</div></div>
+          <div class="kpi-card good"><div class="kpi-label">Resolved (FY24)</div><div class="kpi-value">184</div><div class="kpi-change up">↑ 91% closure rate</div></div>
+          <div class="kpi-card warn"><div class="kpi-label">Recurrence Count</div><div class="kpi-value">12</div><div class="kpi-change down">Same issue >3x</div></div>
+        </div>
+        <div class="two-col">
+          <div class="chart-card">
+            <div class="card-title">🔢 Exceptions by Type</div>
+            <div class="h220"><canvas id="excTypeChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">📅 Resolution Time Distribution</div>
+            <div class="h220"><canvas id="resTimeChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="card-title">📋 Active Exception Log</div>
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead><tr><th>Exception ID</th><th>Date</th><th>Type</th><th>Severity</th><th>Variance ₹</th><th>Assigned To</th><th>Status</th><th>Days Open</th></tr></thead>
+              <tbody>
+                <tr><td>EXC-2024-00341</td><td>15 Mar 2024</td><td>Invoice > PO+GRN</td><td><span class="status-pill pill-red">Critical</span></td><td>₹2,50,000</td><td>EMP-1045</td><td><span class="status-pill pill-blue">Resolved</span></td><td>3</td></tr>
+                <tr><td>EXC-2024-00342</td><td>16 Mar 2024</td><td>SoD Violation</td><td><span class="status-pill pill-red">Critical</span></td><td>—</td><td>CFO</td><td><span class="status-pill pill-red">Escalated</span></td><td>47</td></tr>
+                <tr><td>EXC-2024-00350</td><td>20 Mar 2024</td><td>Duplicate Invoice</td><td><span class="status-pill pill-amber">High</span></td><td>₹3,96,06,700</td><td>EMP-2310</td><td><span class="status-pill pill-blue">Resolved</span></td><td>1</td></tr>
+                <tr><td>EXC-2024-00362</td><td>28 Mar 2024</td><td>Backdated JE</td><td><span class="status-pill pill-amber">High</span></td><td>₹5,82,25,000</td><td>EMP-1230</td><td><span class="status-pill pill-amber">In Progress</span></td><td>35</td></tr>
+                <tr><td>EXC-2024-00371</td><td>02 Apr 2024</td><td>Ghost Employee</td><td><span class="status-pill pill-red">Critical</span></td><td>₹95,000/mo</td><td>HR Head</td><td><span class="status-pill pill-red">Escalated</span></td><td>30</td></tr>
+                <tr><td>EXC-2024-00378</td><td>05 Apr 2024</td><td>GRN w/o PO</td><td><span class="status-pill pill-amber">High</span></td><td>₹8,20,000</td><td>EMP-2210</td><td><span class="status-pill pill-amber">Open</span></td><td>27</td></tr>
+                <tr><td>EXC-2024-00389</td><td>10 Apr 2024</td><td>Bank Recon Gap</td><td><span class="status-pill pill-amber">High</span></td><td>₹54,611</td><td>EMP-2405</td><td><span class="status-pill pill-amber">Open</span></td><td>22</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── QUESTIONNAIRE TAB ── -->
+      <div class="tab-panel" id="tab-questionnaire">
+        <div class="page-header"><div><div class="page-title">Audit Questionnaire</div><div class="page-sub">40 questions · AI-automated where possible · Gap analysis</div></div></div>
+
+        <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem">
+          <div class="kpi-card good"><div class="kpi-label">Compliant</div><div class="kpi-value">24</div><div class="kpi-change up">Yes (60%)</div></div>
+          <div class="kpi-card danger"><div class="kpi-label">Non-Compliant</div><div class="kpi-value">9</div><div class="kpi-change down">No (22.5%)</div></div>
+          <div class="kpi-card warn"><div class="kpi-label">Partial / Exception</div><div class="kpi-value">7</div><div class="kpi-change neutral">Partial (17.5%)</div></div>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchQTab('procurement',this)">Procurement</button>
+          <button class="tab-btn" onclick="switchQTab('grn',this)">GRN & Stores</button>
+          <button class="tab-btn" onclick="switchQTab('ap',this)">AP & Payments</button>
+          <button class="tab-btn" onclick="switchQTab('hr',this)">Payroll & HR</button>
+          <button class="tab-btn" onclick="switchQTab('financial',this)">Financial Controls</button>
+          <button class="tab-btn" onclick="switchQTab('fa',this)">Fixed Assets</button>
+        </div>
+
+        <div class="chart-card" id="q-pane-procurement">
+          <div class="card-title">📄 Procurement Questions (Q1–Q7)</div>
+          <div id="q-rows-procurement"></div>
+        </div>
+        <div class="chart-card" id="q-pane-grn" style="display:none">
+          <div class="card-title">📦 GRN & Stores Questions (Q8–Q12)</div>
+          <div id="q-rows-grn"></div>
+        </div>
+        <div class="chart-card" id="q-pane-ap" style="display:none">
+          <div class="card-title">💳 AP & Payments Questions (Q13–Q19)</div>
+          <div id="q-rows-ap"></div>
+        </div>
+        <div class="chart-card" id="q-pane-hr" style="display:none">
+          <div class="card-title">👥 Payroll & HR Questions (Q27–Q31)</div>
+          <div id="q-rows-hr"></div>
+        </div>
+        <div class="chart-card" id="q-pane-financial" style="display:none">
+          <div class="card-title">📒 Financial Controls Questions (Q32–Q35)</div>
+          <div id="q-rows-financial"></div>
+        </div>
+        <div class="chart-card" id="q-pane-fa" style="display:none">
+          <div class="card-title">🏭 Fixed Assets Questions (Q36–Q38)</div>
+          <div id="q-rows-fa"></div>
+        </div>
+      </div>
+
+      <!-- ── EXCEL TAB ── -->
+      <div class="tab-panel" id="tab-excel">
+        <div class="page-header">
+          <div>
+            <div class="page-title" id="excel-sheet-title">Sheet Name</div>
+            <div class="page-sub">AI Audit Sample Dataset</div>
+          </div>
+        </div>
+        <div class="excel-table-container">
+          <table class="excel-table" id="excel-table-el">
+            <!-- Table content will be injected -->
+          </table>
+        </div>
+      </div>
+
+      <!-- BOTTOM SUB-NAVBAR -->
+      <div class="sub-navbar">
+        <div class="sub-nav-item active" onclick="showTab('overview')">General Overview</div>
+        <div class="sub-nav-item" onclick="showTab('procurement')">Procurement & PO</div>
+        <div class="sub-nav-item" onclick="showTab('vendor')">Vendor Intelligence</div>
+        <div class="sub-nav-item" onclick="showTab('inventory')">Inventory & GRN</div>
+        <div class="sub-nav-item" onclick="showTab('financial')">Financial Controls</div>
+        <div class="sub-nav-item" onclick="showTab('payroll')">Payroll & HR</div>
+        <div class="sub-nav-item" onclick="showTab('exceptions')">Exceptions</div>
+        <div class="sub-nav-item" onclick="showTab('questionnaire')">Audit Questionnaire</div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- CHAT WINDOW -->
+  <div class="chat-window" id="chat-window">
+    <div class="chat-main-area">
+    <div class="chat-header">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;">✨ AI Audit Assistant</div>
+      <button class="chat-attach-btn" onclick="toggleChat()" style="font-size:20px;">×</button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="chat-bubble ai">Hello Admin, I have analyzed the uploaded documents. There are 23 critical findings requiring your attention. How can I help you today?</div>
+    </div>
+    <div class="chat-input-area">
+      <div class="chat-input-wrapper">
+        <button class="chat-attach-btn" title="Attach Document">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+        </button>
+        <input type="text" class="chat-input" id="chat-input-field" placeholder="Ask anything about the audit data...">
+        <button class="chat-send-btn" onclick="handleChatSubmit()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="chat-suggestions-panel">
+    <div class="suggestion-title">Suggested Inquiries</div>
+    <button class="suggestion-btn" onclick="askAI('3-Way Match Integrity')">3-Way Match Integrity</button>
+    <button class="suggestion-btn" onclick="askAI('Vendor Integrity & Shell Detection')">Vendor Integrity & Shell Detection</button>
+    <button class="suggestion-btn" onclick="askAI('Segregation of Duties Violations')">Segregation of Duties Violations</button>
+    <button class="suggestion-btn" onclick="askAI('Ghost Employee Detection')">Ghost Employee Detection</button>
+    <button class="suggestion-btn" onclick="askAI('Inventory Variance & Shrinkage')">Inventory Variance & Shrinkage</button>
+    <button class="suggestion-btn" onclick="askAI('Payment Controls & Bank Account Fraud')">Payment Controls & Bank Account Fraud</button>
+    <button class="suggestion-btn" onclick="askAI('Manual JE — Benford\'s & Backdating')">Manual JE — Benford's & Backdating</button>
+    <button class="suggestion-btn" onclick="askAI('Contract Rate Compliance')">Contract Rate Compliance</button>
+  </div>
+
+
+
+</div>
+
+<script>
+// ── AUTH ──
+function doLogin(){
+  const e=document.getElementById('login-email').value.trim();
+  const p=document.getElementById('login-pass').value.trim();
+  if(e.toLowerCase()==='admin@audit-ai.com' && p==='Admin@123'){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('upload-screen').style.display='flex';
+  } else {
+    document.getElementById('login-err').style.display='block';
+  }
+}
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ── UPLOAD ──
+let uploadCount=0;
+const docIcons=['📄','📦','💳','🏢','📊','✅','⚠️','📃','🏭','👥','📒','🏦','❓'];
+const docNames=['PO Data','GRN Data','Invoice & Payment','Vendor Master','Inventory','Approval Logs','Exception Logs','Contracts','Fixed Assets','Payroll & HR','GL Data','Bank Recon','Audit Q/A'];
+
+function markUpload(i){
+  const dz = document.getElementById('dz'+i);
+  if(dz.classList.contains('uploaded')) return;
+  uploadCount++;
+  dz.classList.add('uploaded');
+  document.getElementById('di'+i).textContent='✅';
+  document.getElementById('dh'+i).textContent='Uploaded ✓';
+  document.getElementById('ud'+i).classList.add('filled');
+  document.getElementById('upload-count-text').textContent=uploadCount+' of 13 documents uploaded';
+  if(uploadCount>=1) document.getElementById('proceed-btn').classList.add('ready');
+}
+
+function autoFillDemo(){
+  for(let i=0; i<13; i++){
+    markUpload(i);
+  }
+}
+
+function proceedToDashboard(){
+  const overlay = document.getElementById('loading-overlay');
+  overlay.style.display = 'flex';
+  
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    document.getElementById('upload-screen').style.display='none';
+    document.getElementById('app').style.display = 'block';
+    setTimeout(buildCharts, 100);
+    buildQuestionnaire();
+  }, 3000);
+}
+
+
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+}
+
+// ── SIDEBAR & CHAT ──
+function toggleSidebar(){
+  document.getElementById('main-layout').classList.toggle('collapsed');
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+function toggleChat(){
+  const win = document.getElementById('chat-window');
+  win.classList.toggle('open');
+  document.body.classList.toggle('chat-open');
+}
+
+
+// ── EXCEL LOGIC ──
+let excelData = {};
+async function loadExcelData() {
+  try {
+    const res = await fetch('excel_data.json');
+    excelData = await res.json();
+    const list = document.getElementById('excel-sheets-list');
+    list.innerHTML = '';
+    Object.keys(excelData).forEach(sheet => {
+      const div = document.createElement('div');
+      div.className = 'excel-sheet-item';
+      div.textContent = sheet;
+      div.onclick = () => showExcelSheet(sheet);
+      list.appendChild(div);
+    });
+  } catch(e) { console.error("Excel load failed", e); }
+}
+loadExcelData();
+
+function toggleExcelDropdown() {
+  const list = document.getElementById('excel-sheets-list');
+  list.style.display = (list.style.display === 'none' ? 'flex' : 'none');
+}
+
+function showExcelSheet(name) {
+  showTab('excel');
+  document.getElementById('excel-sheet-title').textContent = name;
+  const table = document.getElementById('excel-table-el');
+  const data = excelData[name];
+  if(!data || data.length === 0) {
+    table.innerHTML = '<tr><td>No data found in this sheet.</td></tr>';
+    return;
+  }
+  
+  const headers = Object.keys(data[0]);
+  let html = '<thead><tr>';
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += '</tr></thead><tbody>';
+  
+  data.forEach(row => {
+    html += '<tr>';
+    headers.forEach(h => html += `<td>${row[h]}</td>`);
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+  
+  // Highlight active sheet in sidebar
+  document.querySelectorAll('.excel-sheet-item').forEach(el => {
+    el.classList.toggle('active', el.textContent === name);
+  });
+}
+
+
+function handleChatSubmit() {
+  const input = document.getElementById('chat-input-field');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  askAI(msg);
+}
+
+// Add enter key listener
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('chat-input-field');
+  if(input) {
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter') handleChatSubmit();
+    });
+  }
+});
+
+async function askAI(msg){
+  const body = document.getElementById('chat-body');
+  
+  // User bubble
+  const u = document.createElement('div');
+  u.className = 'chat-bubble user';
+  u.textContent = msg;
+  body.appendChild(u);
+  body.scrollTop = body.scrollHeight;
+  
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'chat-bubble ai';
+  typing.style.opacity = '0.7';
+  typing.textContent = 'AI is thinking...';
+  body.appendChild(typing);
+  body.scrollTop = body.scrollHeight;
+
+  try {
+    const response = await fetch('https://n8n.srv982383.hstgr.cloud/webhook/ai-audit-tool', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+    
+    const data = await response.json();
+    body.removeChild(typing);
+    
+    // detect response field
+    const aiResponse = data.output || data.response || data.text || (typeof data === 'string' ? data : JSON.stringify(data));
+    
+    const a = document.createElement('div');
+    a.className = 'chat-bubble ai';
+    a.innerHTML = aiResponse;
+    body.appendChild(a);
+    body.scrollTop = body.scrollHeight;
+    
+  } catch (error) {
+    if(body.contains(typing)) body.removeChild(typing);
+    const errBubble = document.createElement('div');
+    errBubble.className = 'chat-bubble ai';
+    errBubble.textContent = "Sorry, I'm having trouble connecting to the AI service.";
+    body.appendChild(errBubble);
+    body.scrollTop = body.scrollHeight;
+    console.error('Webhook error:', error);
+  }
+}
+
+
+// ── NAV TABS ──
+function showTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.sub-nav-item').forEach(s=>s.classList.remove('active'));
+  
+  const panel = document.getElementById('tab-'+id);
+  if(panel) panel.classList.add('active');
+  
+  // Match sidebar/sub-nav
+  document.querySelectorAll(`[onclick="showTab('${id}')"]`).forEach(el => el.classList.add('active'));
+}
+
+// ── Q TABS ──
+function switchQTab(id,btn){
+  document.querySelectorAll('[id^="q-pane-"]').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.tab-bar .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('q-pane-'+id).style.display='block';
+  btn.classList.add('active');
+}
+
+// ── QUESTIONNAIRE DATA ──
+const qData={
+  procurement:[
+    {n:1,q:"Are all POs raised only against approved Purchase Requisitions (PRs)?",ans:"Partial",style:"pill-amber"},
+    {n:2,q:"Are PO values within the approver's delegated financial authority?",ans:"No",style:"pill-red"},
+    {n:3,q:"Are there any split POs to circumvent approval thresholds?",ans:"Yes (7 cases)",style:"pill-red"},
+    {n:4,q:"Are all POs raised with approved vendors from the vendor master?",ans:"Yes",style:"pill-green"},
+    {n:5,q:"What % of PO rates comply with contracted/agreed rates?",ans:"97.3%",style:"pill-green"},
+    {n:6,q:"Are there POs for items not matching the company's core business?",ans:"No",style:"pill-green"},
+    {n:7,q:"Is there evidence of PO backdating (PO date < PR date)?",ans:"Yes (3 cases)",style:"pill-red"},
+  ],
+  grn:[
+    {n:8,q:"Are goods received quantities matching PO quantities within tolerance?",ans:"Yes (97.8%)",style:"pill-green"},
+    {n:9,q:"Is QC inspection completed before goods are accepted into stores?",ans:"Yes",style:"pill-green"},
+    {n:10,q:"Are rejected goods tracked and returned / credit note obtained?",ans:"Partial",style:"pill-amber"},
+    {n:11,q:"Is the GRN raised by a person different from the PO approver?",ans:"Yes",style:"pill-green"},
+    {n:12,q:"Are there GRNs raised without a corresponding PO?",ans:"Yes (3 GRNs)",style:"pill-red"},
+  ],
+  ap:[
+    {n:13,q:"Is 3-way match (PO↔GRN↔Invoice) performed before payment release?",ans:"Yes (94.2%)",style:"pill-amber"},
+    {n:14,q:"Are there any duplicate invoices paid to the same vendor?",ans:"Yes (5 detected)",style:"pill-red"},
+    {n:15,q:"Are payments made only after GRN confirmation?",ans:"No (1 case found)",style:"pill-red"},
+    {n:16,q:"Are advance payments approved and within policy limits?",ans:"Partial",style:"pill-amber"},
+    {n:17,q:"Is TDS deducted correctly on all applicable vendor payments?",ans:"Yes",style:"pill-green"},
+    {n:18,q:"Are payment modes compliant (no large cash payments)?",ans:"Yes",style:"pill-green"},
+    {n:19,q:"Are vendor bank account changes flagged and reviewed?",ans:"Partial",style:"pill-amber"},
+  ],
+  hr:[
+    {n:29,q:"Are salary changes supported by approved HR change requests?",ans:"Partial (5 cases)",style:"pill-amber"},
+    {n:30,q:"Are terminated employees' system access revoked on exit date?",ans:"No (2 cases)",style:"pill-red"},
+    {n:31,q:"Is overtime correctly calculated and within approved limits?",ans:"Partial (7 OT excess)",style:"pill-amber"},
+  ],
+  financial:[
+    {n:32,q:"Are manual JEs approved by a person different from the preparer?",ans:"Yes (98%)",style:"pill-green"},
+    {n:33,q:"Are there unusual JEs posted near period-end?",ans:"Yes (23 flagged)",style:"pill-red"},
+    {n:34,q:"Is bank reconciliation completed within 7 days of month-end?",ans:"Yes",style:"pill-green"},
+    {n:35,q:"Are there long-outstanding reconciling items (>90 days)?",ans:"Yes (3 items)",style:"pill-red"},
+  ],
+  fa:[
+    {n:36,q:"Are all fixed assets physically verified and tagged at least annually?",ans:"Partial (2 not found)",style:"pill-amber"},
+    {n:37,q:"Is depreciation calculated consistently per the Companies Act / policy?",ans:"Yes",style:"pill-green"},
+    {n:38,q:"Are asset disposals supported by approved disposal orders?",ans:"Yes",style:"pill-green"},
+  ]
+};
+
+function buildQuestionnaire(){
+  Object.keys(qData).forEach(area=>{
+    const el=document.getElementById('q-rows-'+area);
+    if(!el) return;
+    el.innerHTML='';
+    qData[area].forEach(q=>{
+      el.innerHTML+=`<div class="q-row">
+        <div class="q-num">${q.n}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="q-ans status-pill ${q.style}">${q.ans}</div>
+      </div>`;
+    });
+  });
+}
+
+// ── CHARTS ──
+let chartsBuilt=false;
+function buildCharts(){
+  if(chartsBuilt) return; chartsBuilt=true;
+  const blue='#123396',blueMid='rgba(18,51,150,.12)';
+  const green='#2E7D52',red='#C0392B',amber='#D4820A',purple='#7C3AED',teal='#0E7490';
+  const def={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index'}}};
+
+  // Risk Bar
+  new Chart(document.getElementById('riskBarChart'),{type:'bar',
+    data:{labels:['Procurement','Vendor','Inventory','AP/Finance','Payroll','GL','Bank Recon'],
+      datasets:[
+        {label:'Critical',data:[5,3,1,6,2,4,2],backgroundColor:'#EF4444',borderRadius:4},
+        {label:'High',data:[8,6,5,9,4,5,4],backgroundColor:'#F59E0B',borderRadius:4},
+        {label:'Medium',data:[12,10,8,15,6,12,8],backgroundColor:'#3B82F6',borderRadius:4},
+      ]},
+    options:{...def,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11}}},tooltip:{mode:'index'}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#F0F2FA'}}}}
+  });
+
+  // Radar
+  new Chart(document.getElementById('radarChart'),{type:'radar',
+    data:{
+      labels:['Procurement','Vendor Mgmt','Inventory','AP Controls','Payroll','GL & Recon'],
+      datasets:[
+        {label:'FY2024',data:[68,72,85,74,88,70],borderColor:blue,backgroundColor:'rgba(18,51,150,.1)',pointBackgroundColor:blue,pointRadius:4},
+        {label:'Target',data:[95,95,95,95,95,95],borderColor:green,backgroundColor:'rgba(46,125,82,.05)',pointBackgroundColor:green,pointRadius:3,borderDash:[5,3]},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{r:{min:0,max:100,ticks:{display:false,stepSize:20},grid:{color:'#E5E7EB'},pointLabels:{font:{size:11,weight:'500'},color:'#1E2A4A'}}},
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}}}
+  });
+
+  // Trend
+  new Chart(document.getElementById('trendChart'),{type:'line',
+    data:{labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+      datasets:[{label:'Exceptions',data:[14,11,9,16,12,8,10,14,18,22,17,23],borderColor:red,backgroundColor:'rgba(192,57,43,.08)',tension:.4,fill:true,pointBackgroundColor:red,pointRadius:3}]},
+    options:{...def,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F2FA'}}}}
+  });
+
+  // PO Category
+  new Chart(document.getElementById('poCatChart'),{type:'bar',
+    data:{labels:['Raw Material','Capital Goods','Services','Consumables','IT & Infra','Logistics'],
+      datasets:[{label:'₹ Crores',data:[48.2,22.1,15.8,8.4,6.9,4.2],backgroundColor:[blue,'#3B82F6','#60A5FA','#93C5FD',teal,green],borderRadius:6}]},
+    options:{...def,scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F2FA'},ticks:{callback:v=>v+'Cr'}}}}
+  });
+
+  // Approval
+  new Chart(document.getElementById('approvalChart'),{type:'doughnut',
+    data:{labels:['L1 Only','L1+L2','L1+L2+CFO','Missing Approval'],
+      datasets:[{data:[42,38,15,5],backgroundColor:[blue,green,teal,red],borderWidth:2,borderColor:'#fff',hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}}}
+  });
+
+  // Vendor Spend Donut
+  new Chart(document.getElementById('vendorSpendChart'),{type:'doughnut',
+    data:{labels:['Raw Material','Services','CAPEX','Consumables','IT'],
+      datasets:[{data:[48.2,15.8,22.1,8.4,6.9],backgroundColor:[blue,green,amber,teal,purple],borderWidth:2,borderColor:'#fff',hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}}}
+  });
+
+  // Top 10 Vendors Bar
+  new Chart(document.getElementById('vendorBarChart'),{type:'bar',
+    data:{labels:['ABC Steel','XYZ Parts','PQR Supplies','LMN Logistics','DEF Services','GHI Capital','JKL IT','MNO Chem','PQR Tools','STU Electric'],
+      datasets:[{label:'₹ Cr Spend',data:[12.5,8.2,6.9,5.4,4.8,4.2,3.9,3.4,2.8,2.1],backgroundColor:blue,borderRadius:4}]},
+    options:{...def,indexAxis:'y',scales:{x:{grid:{color:'#F0F2FA'},ticks:{callback:v=>v+'Cr'}},y:{grid:{display:false}}}}
+  });
+
+  // Inventory Movement
+  new Chart(document.getElementById('invMovChart'),{type:'bar',
+    data:{labels:['Opening','Receipts','Issues','Closing','Physical'],
+      datasets:[{label:'MT',data:[1200,490,850,840,835],backgroundColor:[blue,green,amber,teal,purple],borderRadius:6}]},
+    options:{...def,scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F2FA'}}}}
+  });
+
+  // Ageing
+  new Chart(document.getElementById('ageingChart'),{type:'bar',
+    data:{labels:['<30 days','30-60 days','60-90 days','90-180 days','>180 days'],
+      datasets:[{label:'% of Stock',data:[58,22,11,6,3],backgroundColor:[green,'#22C55E',amber,red,'#991B1B'],borderRadius:6}]},
+    options:{...def,scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F2FA'},ticks:{callback:v=>v+'%'}}}}
+  });
+
+  // GL Chart
+  new Chart(document.getElementById('glChart'),{type:'bar',
+    data:{labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+      datasets:[
+        {label:'Auto JEs',data:[420,380,410,395,415,390,405,420,445,460,380,510],backgroundColor:'rgba(18,51,150,.6)',borderRadius:3},
+        {label:'Manual JEs',data:[8,6,9,7,10,5,8,11,14,18,12,34],backgroundColor:red,borderRadius:3},
+      ]},
+    options:{...def,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11}}}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#F0F2FA'}}}}
+  });
+
+  // Salary
+  new Chart(document.getElementById('salaryChart'),{type:'bar',
+    data:{labels:['Manufacturing','Sales','Finance','Procurement','HR','IT','Admin'],
+      datasets:[{label:'Total Salary ₹L/month',data:[42,18,12,8,5,7,4],backgroundColor:blue,borderRadius:5}]},
+    options:{...def,scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F2FA'}}}}
+  });
+
+  // Exception Type
+  new Chart(document.getElementById('excTypeChart'),{type:'doughnut',
+    data:{labels:['Price Variance','SoD Violation','Duplicate Inv.','Approval Bypass','Qty Mismatch','GRN w/o PO'],
+      datasets:[{data:[34,12,18,22,8,6],backgroundColor:[red,purple,amber,blue,teal,green],borderWidth:2,borderColor:'#fff',hoverOffset:5}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}}}
+  });
+
+  // Resolution Time
+  new Chart(document.getElementById('resTimeChart'),{type:'bar',
+    data:{labels:['<1 day','1-3 days','3-7 days','7-14 days','14-30 days','>30 days'],
+      datasets:[{label:'# Exceptions',data:[45,62,38,22,12,5],backgroundColor:[green,green,amber,amber,red,red],borderRadius:5}]},
+    options:{...def,scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F2FA'}}}}
+  });
+}
+</script>
+</body>
+</html>
