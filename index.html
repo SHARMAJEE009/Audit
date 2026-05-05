@@ -85,6 +85,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-main
 .h160{height:160px;}.h200{height:200px;}.h220{height:220px;}.h240{height:240px;}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.98)}100%{opacity:1;transform:scale(1)}}
 .chart-card{animation:fadeUp 0.5s ease-out both;}
 
 /* ── TABS ── */
@@ -123,6 +124,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-main
   font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;
   transition:all .2s;margin-top:.5rem;
 }
+.login-btn:hover{background:#0F172A !important; color:#ffffff !important; transform:translateY(-1px); box-shadow:0 8px 24px rgba(15,23,42,0.3);}
 .chat-input-area{
   padding:1.5rem 2rem;background:var(--white);
   border-top:1px solid var(--border);display:flex;gap:12px;
@@ -207,9 +209,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-main
   transition:all .2s;opacity:.4;pointer-events:none;
 }
 .proceed-btn.ready{opacity:1;pointer-events:all;}
-.proceed-btn.ready:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 8px 24px rgba(18,51,150,.3);}
+.proceed-btn.ready:hover{background:#1e293b;transform:translateY(-1px);box-shadow:0 8px 24px rgba(15,23,42,0.3); color:#fff !important;}
 .skip-btn{background:none;border:1px solid var(--g200);color:var(--g400);border-radius:10px;padding:10px 24px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:10px;transition:.2s;}
-.skip-btn:hover{border-color:var(--blue);color:var(--blue);}
+.skip-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(18,51,150,0.05);}
 
 /* ── MAIN APP ── */
 #app{display:none;}
@@ -283,7 +285,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-main
 .nav-item.active{font-weight:600;}
 .nav-icon{font-size:18px;width:24px;text-align:center;}
 
-.content-area{padding:2rem;max-width:1600px;margin:0 auto;width:100%;}
+.content-area{padding:2rem 2rem 100px;max-width:1600px;margin:0 auto;width:100%;}
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -323,34 +325,43 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-main
 /* ── SUB-NAVBAR ── */
 .sub-navbar {
   display: flex;
-  gap: 1rem;
+  justify-content: space-between;
   background: var(--white);
-  padding: 0.75rem 1.5rem;
+  padding: 0 1rem;
   border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
-  overflow-x: auto;
-  scrollbar-width: none;
+  box-shadow: 0 -10px 25px rgba(0,0,0,0.05);
   position: fixed;
   bottom: 0;
   left: var(--sidebar-w);
   right: 0;
   z-index: 200;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 60px;
+  align-items: center;
 }
-.content-area { padding-bottom: 80px; } /* Space for fixed bottom navbar */
-.sub-navbar::-webkit-scrollbar { display: none; }
 .sub-nav-item {
-  font-size: 13px;
-  font-weight: 600;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
   transition: 0.2s;
-  padding: 6px 12px;
-  border-radius: 8px;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-.sub-nav-item:hover { color: var(--blue-accent); background: rgba(59,130,246,0.05); }
-.sub-nav-item.active { color: var(--blue-accent); background: rgba(59,130,246,0.1); }
+.sub-nav-item:hover { color: var(--blue-accent); background: rgba(59,130,246,0.02); }
+.sub-nav-item.active { 
+  color: var(--blue-accent); 
+  background: rgba(59,130,246,0.05); 
+  border-bottom-color: var(--blue-accent);
+}
 
 /* ── EXCEL TABLE ── */
 .excel-table-container {
@@ -447,20 +458,27 @@ body.chat-open .sub-navbar {
   display: none !important;
 }
 
-
-}
-
 /* ── LOADING OVERLAY ── */
 #loading-overlay{
-  position:fixed;inset:0;background:rgba(255,255,255,0.95);z-index:10000;
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:white;z-index:999999;
   display:none;flex-direction:column;align-items:center;justify-content:center;
-  backdrop-filter:blur(10px);
+  text-align: center;
 }
-.loader-bar{width:240px;height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin:1.5rem 0;}
-.loader-progress{width:0%;height:100%;background:var(--blue-accent);animation:loadMove 3s linear forwards;}
-@keyframes loadMove{from{width:0%}to{width:100%}}
-.loader-text{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--blue);}
-.loader-sub{font-size:13px;color:var(--text-muted);margin-top:8px;}
+.loader-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid var(--blue-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.loader-bar{width:300px;height:6px;background:#eee;border-radius:10px;overflow:hidden;margin:1.5rem 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);}
+.loader-progress{width:0%;height:100%;background:var(--blue-accent);transition: width 0.1s linear;}
+.loader-text{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--blue); letter-spacing:-0.5px;}
+.loader-sub{font-size:14px;color:var(--text-muted);margin-top:8px; font-weight:500;}
 
 /* ── CHAT IMPROVEMENTS ── */
 .chat-window{
@@ -580,6 +598,13 @@ body.chat-open .sub-navbar {
 </head>
 <body>
 
+<div id="loading-overlay" style="display:none;">
+  <div class="loader-spinner"></div>
+  <div class="loader-text">AI Audit Intelligence</div>
+  <div class="loader-sub" style="animation: pulse 1.5s infinite;">Buffering Audit Data...</div>
+  <div class="loader-bar" style="width:200px; margin-top:20px;"><div class="loader-progress" id="loader-progress-bar" style="width:0%; transition: width 10s linear;"></div></div>
+</div>
+
 <!-- ═══════════════════════════ LOGIN ═══════════════════════════ -->
 <div id="login-screen">
   <div class="login-bg-pattern"></div>
@@ -622,30 +647,47 @@ body.chat-open .sub-navbar {
     </div>
   </div>
 
-  <div class="upload-body" style="flex-direction:row;gap:3rem;max-width:1400px;margin:0 auto;">
-    <!-- Side Info Panel for Fuller Look -->
-    <div style="flex:1;max-width:400px;display:flex;flex-direction:column;gap:1.5rem;text-align:left;">
-      <div style="background:var(--white);padding:2rem;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);">
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:1rem;color:var(--blue);">Audit Requirements</div>
-        <div style="font-size:14px;color:var(--text-muted);line-height:1.6;">
-          To ensure 100% compliance coverage, please upload the primary financial documents. Our AI will cross-verify data across 13 distinct control points.
+  <div class="upload-body" style="flex-direction:row; align-items:flex-start; gap:40px; padding:4rem 2rem; max-width:1300px; margin:0 auto;">
+    
+    <!-- Left: Audit Requirements Card -->
+    <div class="audit-requirements-sidebar" style="width:340px; background:var(--white); border:1px solid var(--border); border-radius:20px; padding:2rem; box-shadow:var(--shadow-lg); animation:fadeUp 0.6s ease-out both; position:sticky; top:100px;">
+      <div style="width:48px; height:48px; background:rgba(59,130,246,0.1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:1.5rem;">📋</div>
+      <h3 style="font-family:'Syne',sans-serif; font-weight:800; font-size:20px; color:var(--g700); margin-bottom:1rem;">Analytical Framework</h3>
+      <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:2rem;">
+        To initiate the comprehensive analytical workflow, please upload the primary financial datasets. Our AI will perform an autonomous cross-verification across 13 mission-critical control points to ensure 100% compliance integrity.
+      </p>
+      
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:24px; height:24px; background:var(--green); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">✔</div>
+          <span style="font-size:14px; font-weight:600; color:var(--g700);">3-Way Matching</span>
         </div>
-        <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-main);"><span style="color:var(--green);">✔</span> 3-Way Matching</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-main);"><span style="color:var(--green);">✔</span> Ghost Employee Detection</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-main);"><span style="color:var(--green);">✔</span> Conflict of Interest Screening</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-main);"><span style="color:var(--green);">✔</span> Segregation of Duties (SoD)</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:24px; height:24px; background:var(--green); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">✔</div>
+          <span style="font-size:14px; font-weight:600; color:var(--g700);">Ghost Employee Detection</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:24px; height:24px; background:var(--green); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">✔</div>
+          <span style="font-size:14px; font-weight:600; color:var(--g700);">Conflict of Interest Screening</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:24px; height:24px; background:var(--green); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">✔</div>
+          <span style="font-size:14px; font-weight:600; color:var(--g700);">Segregation of Duties (SoD)</span>
         </div>
       </div>
-      <div style="background:rgba(59,130,246,0.05);padding:1.5rem;border-radius:var(--radius);border:1px dashed var(--blue-accent);">
-        <div style="font-weight:700;font-size:13px;color:var(--blue-accent);margin-bottom:4px;">✨ Pro Tip</div>
-        <div style="font-size:12px;color:var(--text-muted);">You can drag and drop multiple files directly into the zones on the right. Supported formats: .csv, .xlsx, .pdf</div>
+      
+      <div style="margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:8px;">Compliance Status</div>
+        <div style="height:6px; background:var(--bg); border-radius:3px; overflow:hidden;">
+          <div id="compliance-mini-bar" style="width:0%; height:100%; background:var(--blue-accent); transition:0.5s;"></div>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">0% Verified</div>
       </div>
     </div>
 
-    <!-- Main Upload Area -->
-    <div class="upload-hero" style="flex:2;">
-      <div class="upload-icon-big" style="margin-top:0;">📂</div>
+    <!-- Right: Main Upload Area -->
+    <div class="upload-hero" style="flex:1; max-width:900px; text-align:left;">
+      <div class="upload-icon-big" style="margin-top:0; margin-left:0;">📂</div>
       <div class="upload-hero-title">Initialize AI Audit Analysis</div>
       <div class="upload-hero-sub">
         Upload documents or proceed with the <strong>Demo</strong> to see sample data.
@@ -665,9 +707,8 @@ body.chat-open .sub-navbar {
           <div class="dot-item" id="ud9"></div>
           <div class="dot-item" id="ud10"></div>
           <div class="dot-item" id="ud11"></div>
-          <div class="dot-item" id="ud12"></div>
         </div>
-        <span id="upload-count-text" style="font-size:12px;color:var(--text-muted);">0 of 13 documents uploaded</span>
+        <span id="upload-count-text" style="font-size:12px;color:var(--text-muted);">0 of 12 documents uploaded</span>
       </div>
 
       <div class="doc-grid" style="grid-template-columns:repeat(3,1fr);max-width:900px;margin-left:auto;margin-right:auto;">
@@ -684,7 +725,7 @@ body.chat-open .sub-navbar {
         <label class="doc-item" id="dz9" for="df9"><div class="doc-icon" id="di9">👥</div><div><div class="doc-name">Payroll & HR</div><div class="doc-hint" id="dh9">Ready</div></div><input type="file" id="df9" onchange="markUpload(9)"></label>
         <label class="doc-item" id="dz10" for="df10"><div class="doc-icon" id="di10">📒</div><div><div class="doc-name">GL Data</div><div class="doc-hint" id="dh10">Ready</div></div><input type="file" id="df10" onchange="markUpload(10)"></label>
         <label class="doc-item" id="dz11" for="df11"><div class="doc-icon" id="di11">🏦</div><div><div class="doc-name">Bank Recon</div><div class="doc-hint" id="dh11">Ready</div></div><input type="file" id="df11" onchange="markUpload(11)"></label>
-        <label class="doc-item" id="dz12" for="df12"><div class="doc-icon" id="di12">❓</div><div><div class="doc-name">Audit Q/A</div><div class="doc-hint" id="dh12">Ready</div></div><input type="file" id="df12" onchange="markUpload(12)"></label>
+
       </div>
 
       <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:2rem;">
@@ -695,15 +736,7 @@ body.chat-open .sub-navbar {
   </div>
 </div>
 
-<!-- ═══════════════════════════ LOADING OVERLAY ═══════════════════════════ -->
-<div id="loading-overlay">
-  <div class="loader-text">AI Audit Intelligence</div>
-  <div class="loader-sub">Analyzing documents and generating risk assessment...</div>
-  <div class="loader-bar"><div class="loader-progress"></div></div>
 
-</div>
-
-</div>
 
 <!-- ═══════════════════════════ MAIN APP ═══════════════════════════ -->
 <div id="app">
@@ -754,7 +787,7 @@ body.chat-open .sub-navbar {
       <div class="tab-panel active" id="tab-overview">
         <div class="page-header">
           <div>
-            <div class="page-title">Audit AI Intelligence</div>
+            <div class="page-title">AI Audit Report - Audit AI Intelligence</div>
           </div>
           <div class="audit-score-ring">
             <svg viewBox="0 0 80 80">
@@ -764,7 +797,7 @@ body.chat-open .sub-navbar {
                 style="filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.4));"/>
             </svg>
             <div class="score-inner">
-              <div class="score-num">72</div>
+              <div class="score-num">35</div>
               <div class="score-label">Score</div>
             </div>
           </div>
@@ -793,14 +826,14 @@ body.chat-open .sub-navbar {
             <div class="kpi-change neutral">→ 12 new this FY</div>
           </div>
           <div class="kpi-card purple">
-            <div class="kpi-label">SoD Violations</div>
+            <div class="kpi-label">SOP Violations</div>
             <div class="kpi-value">6</div>
             <div class="kpi-change down">↑ Needs action</div>
           </div>
         </div>
 
         <div class="alert-ribbon">
-          <div class="alert crit"><div class="alert-icon">🚨</div><div><strong>CRITICAL:</strong> 3 SoD violations found — same employee is both initiator and approver for POs totalling ₹4.2 Cr. Immediate review required.</div></div>
+          <div class="alert crit"><div class="alert-icon">🚨</div><div><strong>CRITICAL:</strong> 3 SOP violations found — same employee is both initiator and approver for POs totalling ₹4.2 Cr. Immediate review required.</div></div>
           <div class="alert crit"><div class="alert-icon">🚨</div><div><strong>CRITICAL:</strong> Invoice INV-ABC-2024-9923 (₹2.5L) marked paid before GRN confirmation. Possible payment fraud risk.</div></div>
           <div class="alert warn"><div class="alert-icon">⚠️</div><div><strong>HIGH:</strong> 7 unreconciled items in bank recon older than 90 days totalling ₹54,611. Escalation recommended.</div></div>
           <div class="alert info"><div class="alert-icon">ℹ️</div><div><strong>INFO:</strong> Vendor VND-00892 annual spend (₹12.5 Cr) exceeds 40% of raw material category spend — concentration risk.</div></div>
@@ -819,37 +852,127 @@ body.chat-open .sub-navbar {
           </div>
         </div>
 
-        <div class="three-col">
-          <div class="chart-card">
-            <div class="card-title">🔴 Risk Level Summary</div>
-            <div class="risk-grid" style="margin-top:6px;">
-              <div class="risk-cell risk-high" style="grid-column:span 3"><div class="risk-count">23</div><div class="risk-label">Critical Issues</div></div>
-              <div class="risk-cell risk-medium" style="grid-column:span 2"><div class="risk-count">41</div><div class="risk-label">High Risk</div></div>
-              <div class="risk-cell risk-low"><div class="risk-count">87</div><div class="risk-label">Medium</div></div>
+        <div class="section-divider">AI Audit Report – Procurement Cycle</div>
+        <div class="findings-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; margin-bottom:2.5rem;">
+          <!-- Finding 1 -->
+          <div class="chart-card" style="border:none; border-top:4px solid var(--red); display:flex; flex-direction:column; gap:12px; background:var(--white); box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div style="font-weight:800; font-size:14px; color:var(--g700); font-family:'Syne'; text-transform:uppercase; letter-spacing:0.5px;">1. PO Approval Violation</div>
+              <span class="status-pill pill-red" style="font-size:9px;">HIGH RISK</span>
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Observation</span>
+              PO003 was issued without approval.
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Impact</span>
+              Unauthorized procurement risk
+            </div>
+            <div style="background:rgba(59,130,246,0.03); padding:12px; border-radius:12px; border:1px dashed rgba(59,130,246,0.2);">
+              <div style="color:var(--blue-accent); font-weight:800; margin-bottom:4px; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">Recommendation</div>
+              <div style="font-size:12px; color:var(--g700); font-weight:500;">Enforce mandatory approval workflow before PO issuance.</div>
             </div>
           </div>
-          <div class="chart-card" style="grid-column:span 2">
-            <div class="card-title">📈 Monthly Exception Trend</div>
-            <div class="h160"><canvas id="trendChart"></canvas></div>
-          </div>
-        </div>
 
-        <div class="section-divider">📋 Recent Audit Findings</div>
-        <div class="chart-card">
-        <div class="data-table-container">
-            <table class="data-table">
-              <thead><tr><th>Finding ID</th><th>Area</th><th>Description</th><th>Risk</th><th>Status</th><th>Assigned To</th></tr></thead>
-              <tbody>
-                <tr><td>AUD-2024-001</td><td>Procurement</td><td>PO raised without PR — PO-2024-004521 (₹3.42 Cr)</td><td><span class="status-pill pill-red">Critical</span></td><td><span class="status-pill pill-amber">Open</span></td><td>EMP-1045</td></tr>
-                <tr><td>AUD-2024-002</td><td>AP / Invoice</td><td>Payment before GRN — INV-ABC-9923 (₹3.96 Cr)</td><td><span class="status-pill pill-red">Critical</span></td><td><span class="status-pill pill-amber">In Progress</span></td><td>EMP-2310</td></tr>
-                <tr><td>AUD-2024-003</td><td>Approval Logs</td><td>SoD Violation — Initiator = Approver (EMP-2310)</td><td><span class="status-pill pill-red">Critical</span></td><td><span class="status-pill pill-red">Escalated</span></td><td>CFO</td></tr>
-                <tr><td>AUD-2024-004</td><td>Vendor Master</td><td>Duplicate vendor — same PAN, 2 different IDs</td><td><span class="status-pill pill-amber">High</span></td><td><span class="status-pill pill-amber">Open</span></td><td>EMP-0912</td></tr>
-                <tr><td>AUD-2024-005</td><td>Inventory</td><td>Book vs. physical variance: 5 MT (₹34,250) — RM-STL-CR-002</td><td><span class="status-pill pill-amber">High</span></td><td><span class="status-pill pill-blue">Resolved</span></td><td>EMP-2210</td></tr>
-                <tr><td>AUD-2024-006</td><td>GL Data</td><td>Manual JE posted post-closing: JE-2024-032145 (₹5.82 Cr)</td><td><span class="status-pill pill-amber">High</span></td><td><span class="status-pill pill-amber">In Progress</span></td><td>EMP-1230</td></tr>
-                <tr><td>AUD-2024-007</td><td>Payroll</td><td>Ghost employee flag — Active salary, zero attendance (EMP-4422)</td><td><span class="status-pill pill-red">Critical</span></td><td><span class="status-pill pill-red">Escalated</span></td><td>HR Head</td></tr>
-              </tbody>
-            </table>
-        </div>
+          <!-- Finding 2 -->
+          <div class="chart-card" style="border:none; border-top:4px solid var(--amber); display:flex; flex-direction:column; gap:12px; background:var(--white); box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div style="font-weight:800; font-size:14px; color:var(--g700); font-family:'Syne'; text-transform:uppercase; letter-spacing:0.5px;">2. Quantity Mismatch (GRN vs PO)</div>
+              <span class="status-pill pill-amber" style="font-size:9px;">MEDIUM RISK</span>
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Observation</span>
+              PO002 ordered 200 units, but only 180 units received.
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Impact</span>
+              Inventory discrepancy / potential loss
+            </div>
+            <div style="background:rgba(59,130,246,0.03); padding:12px; border-radius:12px; border:1px dashed rgba(59,130,246,0.2);">
+              <div style="color:var(--blue-accent); font-weight:800; margin-bottom:4px; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">Recommendation</div>
+              <div style="font-size:12px; color:var(--g700); font-weight:500;">Investigate short supply and adjust vendor payment accordingly.</div>
+            </div>
+          </div>
+
+          <!-- Finding 3 -->
+          <div class="chart-card" style="border:none; border-top:4px solid var(--red); display:flex; flex-direction:column; gap:12px; background:var(--white); box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div style="font-weight:800; font-size:14px; color:var(--g700); font-family:'Syne'; text-transform:uppercase; letter-spacing:0.5px;">3. Invoice vs PO Mismatch</div>
+              <span class="status-pill pill-red" style="font-size:9px;">HIGH RISK</span>
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Observation</span>
+              Invoice INV002 amount (42000) exceeds PO amount (40000).
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Impact</span>
+              Risk of overpayment
+            </div>
+            <div style="background:rgba(59,130,246,0.03); padding:12px; border-radius:12px; border:1px dashed rgba(59,130,246,0.2);">
+              <div style="color:var(--blue-accent); font-weight:800; margin-bottom:4px; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">Recommendation</div>
+              <div style="font-size:12px; color:var(--g700); font-weight:500;">Implement 3-way matching (PO–GRN–Invoice) before payment.</div>
+            </div>
+          </div>
+
+          <!-- Finding 4 -->
+          <div class="chart-card" style="border:none; border-top:4px solid var(--red); display:flex; flex-direction:column; gap:12px; background:var(--white); box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div style="font-weight:800; font-size:14px; color:var(--g700); font-family:'Syne'; text-transform:uppercase; letter-spacing:0.5px;">4. Invoice Without PO</div>
+              <span class="status-pill pill-red" style="font-size:9px;">HIGH RISK</span>
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Observation</span>
+              Invoice INV004 is not linked to any PO.
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Impact</span>
+              Unauthorized purchase / fraud risk
+            </div>
+            <div style="background:rgba(59,130,246,0.03); padding:12px; border-radius:12px; border:1px dashed rgba(59,130,246,0.2);">
+              <div style="color:var(--blue-accent); font-weight:800; margin-bottom:4px; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">Recommendation</div>
+              <div style="font-size:12px; color:var(--g700); font-weight:500;">Block invoice processing without valid PO reference.</div>
+            </div>
+          </div>
+
+          <!-- Finding 5 -->
+          <div class="chart-card" style="border:none; border-top:4px solid #991B1B; display:flex; flex-direction:column; gap:12px; background:var(--white); box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div style="font-weight:800; font-size:14px; color:var(--g700); font-family:'Syne'; text-transform:uppercase; letter-spacing:0.5px;">5. Payment Without Validation</div>
+              <span class="status-pill pill-red" style="background:rgba(153,27,27,0.1); color:#991B1B; font-size:9px;">CRITICAL</span>
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Observation</span>
+              Payment made for INV004 despite missing PO.
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Impact</span>
+              Financial leakage
+            </div>
+            <div style="background:rgba(153,27,27,0.03); padding:12px; border-radius:12px; border:1px dashed rgba(153,27,27,0.2);">
+              <div style="color:#991B1B; font-weight:800; margin-bottom:4px; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">Recommendation</div>
+              <div style="font-size:12px; color:var(--g700); font-weight:500;">Introduce automated validation before payment release.</div>
+            </div>
+          </div>
+
+          <!-- Finding 6 -->
+          <div class="chart-card" style="border:none; border-top:4px solid var(--red); display:flex; flex-direction:column; gap:12px; background:var(--white); box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div style="font-weight:800; font-size:14px; color:var(--g700); font-family:'Syne'; text-transform:uppercase; letter-spacing:0.5px;">6. Quality Check Failure</div>
+              <span class="status-pill pill-red" style="font-size:9px;">HIGH RISK</span>
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Observation</span>
+              GRN003 failed QC but invoice was processed.
+            </div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.5;">
+              <span style="display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Impact</span>
+              Payment for defective goods
+            </div>
+            <div style="background:rgba(59,130,246,0.03); padding:12px; border-radius:12px; border:1px dashed rgba(59,130,246,0.2);">
+              <div style="color:var(--blue-accent); font-weight:800; margin-bottom:4px; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">Recommendation</div>
+              <div style="font-size:12px; color:var(--g700); font-weight:500;">Integrate QC status check before invoice approval.</div>
+            </div>
+          </div>
         </div>
         <div class="footer-row">Audit Intelligence AI Platform · Prototype v1.0 · Data: Static Sample (FY2024)</div>
       </div>
@@ -1169,7 +1292,6 @@ body.chat-open .sub-navbar {
         <div class="sub-nav-item" onclick="showTab('financial')">Financial Controls</div>
         <div class="sub-nav-item" onclick="showTab('payroll')">Payroll & HR</div>
         <div class="sub-nav-item" onclick="showTab('exceptions')">Exceptions</div>
-        <div class="sub-nav-item" onclick="showTab('questionnaire')">Audit Questionnaire</div>
       </div>
     </main>
 
@@ -1199,14 +1321,16 @@ body.chat-open .sub-navbar {
   </div>
   <div class="chat-suggestions-panel">
     <div class="suggestion-title">Suggested Inquiries</div>
-    <button class="suggestion-btn" onclick="askAI('3-Way Match Integrity')">3-Way Match Integrity</button>
-    <button class="suggestion-btn" onclick="askAI('Vendor Integrity & Shell Detection')">Vendor Integrity & Shell Detection</button>
-    <button class="suggestion-btn" onclick="askAI('Segregation of Duties Violations')">Segregation of Duties Violations</button>
-    <button class="suggestion-btn" onclick="askAI('Ghost Employee Detection')">Ghost Employee Detection</button>
-    <button class="suggestion-btn" onclick="askAI('Inventory Variance & Shrinkage')">Inventory Variance & Shrinkage</button>
-    <button class="suggestion-btn" onclick="askAI('Payment Controls & Bank Account Fraud')">Payment Controls & Bank Account Fraud</button>
-    <button class="suggestion-btn" onclick="askAI('Manual JE — Benford\'s & Backdating')">Manual JE — Benford's & Backdating</button>
-    <button class="suggestion-btn" onclick="askAI('Contract Rate Compliance')">Contract Rate Compliance</button>
+    <button class="suggestion-btn" onclick="askAI('3-Way Match Integrity — PO ↔ GRN ↔ Invoice Cross-Validation')">3-Way Match Integrity — Cross-Validation</button>
+    <button class="suggestion-btn" onclick="askAI('Vendor Integrity — Duplicate, Shell & Conflict-of-Interest Detection')">Vendor Integrity — Detection</button>
+    <button class="suggestion-btn" onclick="askAI('Segregation of Duties — Initiator = Approver Violations Across All Transactions')">Segregation of Duties Violations</button>
+    <button class="suggestion-btn" onclick="askAI('Ghost Employee Detection — Salary Paid vs. Attendance, Login & HR Status')">Ghost Employee Detection</button>
+    <button class="suggestion-btn" onclick="askAI('Inventory Variance & Shrinkage — Book vs. Physical Count Analysis')">Inventory Variance & Shrinkage</button>
+    <button class="suggestion-btn" onclick="askAI('Payment Control Failures — Early Payments, Bank Account Changes & Cash Payments')">Payment Control Failures</button>
+    <button class="suggestion-btn" onclick="askAI('Manual Journal Entry Analysis — SoD, Timing, Round Numbers & Backdating')">Manual Journal Entry Analysis</button>
+    <button class="suggestion-btn" onclick="askAI('Contract Compliance — PO Rate vs. Contract Rate Variance & Expired Contract Transactions')">Contract Compliance — PO Rate</button>
+    <button class="suggestion-btn" onclick="askAI('Bank Reconciliation Quality — Unreconciled Gaps, SoD & Timeliness')">Bank Reconciliation Quality</button>
+    <button class="suggestion-btn" onclick="askAI('End-to-End Risk Score — Multi-Domain Exception Pattern & Repeat Offender Analysis')">End-to-End Risk Score</button>
   </div>
 
 
@@ -1229,8 +1353,8 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 
 // ── UPLOAD ──
 let uploadCount=0;
-const docIcons=['📄','📦','💳','🏢','📊','✅','⚠️','📃','🏭','👥','📒','🏦','❓'];
-const docNames=['PO Data','GRN Data','Invoice & Payment','Vendor Master','Inventory','Approval Logs','Exception Logs','Contracts','Fixed Assets','Payroll & HR','GL Data','Bank Recon','Audit Q/A'];
+const docIcons=['📄','📦','💳','🏢','📊','✅','⚠️','📃','🏭','👥','📒','🏦'];
+const docNames=['PO Data','GRN Data','Invoice & Payment','Vendor Master','Inventory','Approval Logs','Exception Logs','Contracts','Fixed Assets','Payroll & HR','GL Data','Bank Recon'];
 
 function markUpload(i){
   const dz = document.getElementById('dz'+i);
@@ -1240,27 +1364,41 @@ function markUpload(i){
   document.getElementById('di'+i).textContent='✅';
   document.getElementById('dh'+i).textContent='Uploaded ✓';
   document.getElementById('ud'+i).classList.add('filled');
-  document.getElementById('upload-count-text').textContent=uploadCount+' of 13 documents uploaded';
+  document.getElementById('upload-count-text').textContent=uploadCount+' of 12 documents uploaded';
   if(uploadCount>=1) document.getElementById('proceed-btn').classList.add('ready');
+  
+  // Update compliance sidebar
+  const pct = Math.round((uploadCount / 12) * 100);
+  const miniBar = document.getElementById('compliance-mini-bar');
+  if(miniBar) {
+    miniBar.style.width = pct + '%';
+    miniBar.parentElement.nextElementSibling.textContent = pct + '% Verified';
+  }
 }
 
 function autoFillDemo(){
-  for(let i=0; i<13; i++){
+  for(let i=0; i<12; i++){
     markUpload(i);
   }
 }
 
 function proceedToDashboard(){
   const overlay = document.getElementById('loading-overlay');
+  const progressBar = document.getElementById('loader-progress-bar');
   overlay.style.display = 'flex';
   
+  // Trigger bar transition
+  setTimeout(() => {
+    progressBar.style.width = '100%';
+  }, 50);
+
   setTimeout(() => {
     overlay.style.display = 'none';
     document.getElementById('upload-screen').style.display='none';
     document.getElementById('app').style.display = 'block';
     setTimeout(buildCharts, 100);
     buildQuestionnaire();
-  }, 3000);
+  }, 10000);
 }
 
 
@@ -1354,6 +1492,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+const predefinedAnswers = {
+  "3-Way Match Integrity — PO ↔ GRN ↔ Invoice Cross-Validation": `<strong>Ans-</strong>The 3-way match is the single most important preventive control in the procure-to-pay cycle. It ensures that payment is only released when a valid PO authorises the purchase, a GRN confirms physical receipt of goods/services, and the invoice correctly reflects what was ordered and received. A breakdown at any one of these three linkage points exposes the company to duplicate payments, overpayments, or payment for goods never received.<br><br><strong>Findings from Structured Data (PO + GRN + Invoice sheets):</strong><br>• INV-GLOB-2024-0893: Invoice paid for GRN-2024-008908 with NO corresponding PO. The GRN itself was raised without a PO (orphan GRN). Payment of ₹19,824 was released — 3-way match status: 'Mismatch – No PO'.<br>• INV-ABC-2024-9924: Exact duplicate of INV-ABC-2024-9923 — same vendor (VND-00892), same PO, same GRN, same amount (₹3,96,06,700). System flagged as 'Fail – Duplicate'. Had controls not caught it, this would have been a ₹3.96 Cr overpayment.<br>• INV-PRIME-2024-0662: Partial mismatch — GRN-2024-008907 shows 195 units accepted vs 200 ordered, yet invoice was raised for full 200. ₹4,250 variance pending credit note.<br><br><strong>Corroborating Evidence from Unstructured Documents:</strong><br>• The Vendor Invoice (PDF) for INV-ABC-2024-9923 clearly states PO-2024-004521 and GRN-2024-008901. The duplicate invoice INV-ABC-2024-9924 references the identical PO and GRN — detectable by OCR extraction and hash-comparison of invoice metadata.<br>• The PO document for PO-2024-004521 includes a Term: 'Invoices without PO reference will not be processed.' INV-GLOB-2024-0893 violates this term — confirming a process bypass, not a system error.`,
+  
+  "Vendor Integrity — Duplicate, Shell & Conflict-of-Interest Detection": `<strong>Ans-</strong> Vendor fraud is consistently one of the top three fraud risk areas in manufacturing companies. The three primary schemes are: (1) duplicate vendors — the same entity registered twice to enable double-billing; (2) shell vendors — fictitious entities with no real business activity; and (3) conflict-of-interest vendors — suppliers linked to employees. All three require cross-dataset analysis spanning the vendor master, payroll records, transaction history, and unstructured documents like registration certificates and invoices.<br><br><strong>Key Findings:</strong><br>• VND-01250 (FastTrack Traders): Shares the EXACT same registered address (45 Industrial Estate, Pune) and contact phone number (+91-98765-43210) as VND-00892 (ABC Steel Suppliers). Both records have different names but identical contact details — a strong shell vendor indicator. FastTrack also onboarded Feb 2024 and had a ₹15L PO within 30 days of onboarding.<br>• VND-01300 (BlueStar Engineering): Shares the same bank account IFSC and account number as VND-00678 (Prime Bearings Mfg Co). Two distinct vendors cannot legitimately share a bank account — payment to either could fund the same beneficiary.<br>• VND-00512 (Global Lubricants): Empanelment expired November 2023. POs PO-2024-004523 and PO-2024-004529 were raised in March 2024 — 4 months after expiry. Exception EXC-2024-00349 shows this has recurred 4 times, indicating a systemic control failure, not an isolated incident.<br>• VND-00450 (Omega Spares): Status = Dormant, empanelment expired May 2024. No transactions expected. System should block all PO creation.`,
+  
+  "Segregation of Duties — Initiator = Approver Violations Across All Transactions": `<strong>Ans-</strong>Segregation of Duties is a foundational internal control principle: no single individual should have the ability to initiate and approve the same financial transaction. When SoD is violated, a single employee can create fraudulent transactions without independent oversight. The AI audit tool must detect SoD failures across all transaction types — POs, payments, GRN receipts, journal entries, and bank reconciliations.<br><br><strong>SoD Violations Identified:</strong><br>• TXN-2024-041127 (PO-2024-004525, ₹2.16 Cr): EMP-2310 appears as Initiator, L1 Approver AND L2 Approver. Approval timestamp gap: 0.002 hours (rubber stamp). Approved at 18:55 hrs from mobile device, external IP 10.0.5.44. This is the most severe violation in the dataset — a ₹2.16 Cr PO with zero independent oversight.<br>• TXN-2024-041126 (Payment, ₹3.96 Cr): EMP-4401 is both Initiator and L1 Approver. L2 (CFO) approved, but L1 SoD was already breached. Approval time gap: 33 seconds — statistical impossibility for genuine review of a ₹3.96 Cr payment.<br>• TXN-2024-041132 (Payment, ₹7.67L): Proxy/delegation used by EMP-1230. While the delegation was authorized by CFO, the combination of proxy + payment = a risk flag requiring verification that the delegation was for this specific transaction.<br>• JE-2024-032145 (Manual JE, ₹58.23L): EMP-2405 is both Preparer and Approver. No supporting document. Approved via email (not system workflow). This violates both SoD and the SOP requirement for system-workflow approval on manual JEs.<br><br><strong>Corroboration from Unstructured Audit Report:</strong><br>The Internal Audit Report (Document 3) explicitly identifies Finding 01 as Critical — SoD violation on PO-2024-004525. It recommends hard ERP controls to prevent initiator approval. The audit report serves as a second independent data source confirming the same violation detected in the Approval Logs sheet.`,
+  
+  "Ghost Employee Detection — Salary Paid vs. Attendance, Login & HR Status": `<strong>Ans-</strong> Ghost employee fraud occurs when payroll is paid to a non-existent or terminated employee — typically enabled by a payroll officer with insufficient oversight. Detection requires triangulating three independent data streams: payroll disbursement records, attendance/time-in systems, and IT system login logs. A genuine employee will have evidence in all three; a ghost will appear only in payroll.<br><br><strong>Ghost Employee Findings:</strong><br>• EMP-9901 (Rahul Singh): Active status, drawing ₹42,000/month salary. Department: N/A. Designation: N/A. Attendance: 0 days. System login: 0 sessions. No PF number visible in HR system. This is a textbook ghost employee — salary disbursed with zero operational footprint. Annual leakage: ₹5,04,000.<br>• EMP-0550 (Vikram Joshi): Terminated on 15-Jan-2024. Payroll shows salary paid post-exit with 0 attendance days. Employment Status = Terminated yet salary continues. Annual leakage at ₹38,000/month: ₹76,000+ (for 2 months Feb–Mar 2024). System access status not verified — a security risk.<br><br><strong>Prior Audit Finding Remediation Check (from Audit Report):</strong><br>• The Internal Audit Report (Prior Period Finding P-2023-04) flagged 2 ghost employee cases with a commitment to remediate by 31-Mar-2024. Status in current report: OPEN. The discovery of EMP-9901 and EMP-0550 in Q4 FY2024 data confirms the prior finding was NOT remediated — a serious control failure indicating management's lack of follow-through.<br>• The SOP document (HR Controls section) mandates: 'Salary changes and new employee additions require HR + Finance dual approval.' EMP-9901 shows no approval trail in the Approval Logs — the onboarding itself was unauthorized.`,
+  
+  "Inventory Variance & Shrinkage — Book vs. Physical Count Analysis": `<strong>Ans-</strong>Inventory shrinkage in manufacturing environments stems from four primary causes: (1) pilferage, (2) inaccurate GRN counting, (3) production waste in excess of standard, and (4) book errors from incorrect UoM or valuation method application. The AI audit tool must distinguish between these by correlating the inventory variance with upstream GRN acceptance data, production orders, and exception logs.<br><br><strong>Items Exceeding 1% Variance Threshold:</strong><br>• SPARE-BRG-6205 (SKF Bearings): Book stock 345 units vs. physical count 310 units. Variance: 35 units = 10.1%. At ₹850/unit, shrinkage value = ₹29,750. GRN-2024-008907 shows 5 units rejected (QC Partial Pass) — yet the rejection credit note status is unclear. Exception EXC-2024-00346 is In-Progress with possible pilferage being investigated.<br>• PKG-BOX-LRG (Corrugated Boxes): Physical count 6,005 vs. book 6,000. Variance: -5 units (physical EXCEEDS book). While small (0.08%), a negative variance — more physical than book — indicates either double GRN entry or incorrect opening balance. ERP should not allow physical > book without explanation.<br>• FG-PROD-A101 (Finished Goods Type A101): 195 days in stock — exceeds the 180-day slow-moving threshold. No variance, but ₹7.2 Cr of finished goods at risk of obsolescence. No provision recorded in GL.<br>• WIP-ASSY-B210: Last physical count date: 15-Jan-2024 — 75 days before March month-end. SOP requires high-value items to be counted within 90 days. While not yet breached, the pattern (last count in January only) suggests ad hoc rather than systematic counting.<br><br><strong>GRN Corroboration:</strong><br>• GRN-2024-008910 shows 510 MT received vs PO qty of 500 MT — a 2% over-receipt on steel sheets. This excess 10 MT entered inventory without a corresponding GRN value update, creating a book-physical gap on RM-STL-CR-002 that may manifest in the next physical count.`,
+  
+  "Payment Control Failures — Early Payments, Bank Account Changes & Cash Payments": `<strong>Ans-</strong>Payment fraud in the AP cycle typically manifests in three ways: (1) early payment — releasing funds before goods are received or invoices approved; (2) account substitution — redirecting payment to a fraudster's account by changing the vendor bank details just before payment; and (3) cash payments — bypassing the banking trail. The AI tool must compare payment records against GRN dates, validate bank accounts against the vendor master at the time of each payment, and enforce the SOP prohibition on large cash payments.<br><br><strong>Key Payment Control Failures:</strong><br>• INV-GLOB-2024-0893 (Payment ₹19,824 — No PO): Payment released despite 3-way match status showing 'Mismatch – No PO'. The SOP requires zero payments without a matched PO. This payment was processed by EMP-4401 and approved by EMP-1230 — both in Finance, raising SoD questions on the AP side.<br>• VND-01300 (BlueStar Engineering): Bank account XXXX2231 matches VND-00678 (Prime Bearings). Any payment processed to VND-01300 would flow to the same beneficiary as a legitimate vendor. This is a classic account-substitution setup.<br>• Payment Timing Analysis: INV-DELTA-2024-0451 shows advance payment of ₹2,25,000 (50% of PO value ₹4.5L) made before full delivery. While the SOP allows advance with approval, no separate advance approval record exists in the Approval Logs for this specific disbursement.<br><br><strong>Invoice PDF Cross-Validation:</strong><br>• The Vendor Invoice document (Document 1) contains the bank account XXXX4521 and IFSC HDFC0001234 for VND-00892. The AI tool can extract these via OCR and cross-check against the Vendor Master at payment date. If the invoice bank details differ from the master at the time of payment — even by one digit — it is a mandatory hold trigger.<br>• SOP-PROC-001 explicitly states: 'Cash payments above ₹5,000 prohibited. All payments via RTGS/NEFT to registered vendor bank account only.' No cash payments detected in the dataset — this control is operating.`,
+  
+  "Manual Journal Entry Analysis — SoD, Timing, Round Numbers & Backdating": `<strong>Ans-</strong> Journal entry fraud is the most difficult form of financial manipulation to detect because JEs can be used to directly alter balances without a physical transaction trail. The AI audit tool applies three analytical lenses: (1) Benford's Law — in naturally occurring financial data, leading digits follow a logarithmic distribution; amounts that deviate significantly are statistically unusual; (2) timing analysis — fraudulent JEs are disproportionately posted near period-end, after hours, or on weekends; and (3) SoD and approval workflow checks.<br><br><strong>Findings:</strong><br>• JE-2024-032145 (₹58,22,500 — Misc Expenses): Manual JE, preparer = approver (EMP-2405), approved via Email (not ERP workflow), no supporting document reference. Posted 02-Apr-2024 (after March month-end close). Reversal ref: JE-032146 — but no confirmation the reversal was actually posted. This JE artificially inflates Misc Expenses by ₹58.23L without any transaction backing.<br>• JE-2024-032150 (₹1,00,00,000 — Intercompany): ₹10 Cr intercompany receivable, back-dated to 30-Mar-2024 but posted 08-Apr-2024 (9 days after period-end). This is a textbook period-end manipulation — shifting funds to a subsidiary to inflate the parent's receivables at year-end. The GL sheet notes this as Intercompany = Yes, but the balancing entry in the subsidiary's books is unverified.<br>• Round Number Analysis: JE-032150 is exactly ₹10,00,00,000 — a perfectly round ₹10 Cr. Benford's Law predicts that genuine transactions rarely start with a round number of this magnitude. Combined with the backdating, this is a high-confidence manipulation indicator.<br><br><strong>Timing Pattern — Period-End Clustering:</strong><br>• Of 10 GL entries, 8 are dated 31-Mar-2024 (month/year-end). While expected for accruals, 2 of these 8 were posted to the ledger on 02-Apr or 08-Apr — after the March close. System-generated entries (depreciation, payroll) legitimately cluster at month-end; manual entries clustering at period-end without support documents are red flags.`,
+  
+  "Contract Compliance — PO Rate vs. Contract Rate Variance & Expired Contract Transactions": `<strong>Ans-</strong> Contract compliance in procurement serves as the primary financial control ensuring that negotiated savings are actually realised. Companies negotiate annual rate contracts precisely to lock in prices — when buyers raise POs at rates above the contracted rate, the cost savings from negotiation are eroded. The AI audit tool must compare each PO's unit price against the active contract rate at the time of issuance, flag rate deviations, and track transactions raised against contracts that had already expired.<br><br><strong>Rate Compliance Analysis:</strong><br>• PO-2024-004521 (VND-00892, ₹3.42 Cr): PO unit rate = ₹68,500/MT. Contract CONT-2024-00112 approved rate = ₹68,000/MT. Rate variance = ₹500/MT × 500 MT = ₹2,50,000 overpayment on this single PO. This was also flagged in Exception EXC-2024-00345.<br>• PO-2024-004522 + PO-2024-004527 (VND-00341): Both POs raised against CONT-2023-00089 which expired 31-Mar-2024. While the POs were dated within the contract period, there is no renewed contract for FY2025. Any future POs to Sharma Packaging will have no contracted rate benchmark — uncontrolled spend risk.<br>• PO-2024-004523 (VND-00512): Contract CONT-2023-00055 expired 31-Dec-2023. PO raised 17-Mar-2024 — 77 days after contract expiry. No exception approval documented. Rate charged: ₹310/Ltr vs. expired contract rate ₹295/Ltr = ₹15/Ltr variance × 100 Ltrs = ₹1,500 overpayment.<br><br><strong>PO Document Evidence:</strong><br>• The Purchase Order document (Document 2) explicitly references contract CONT-2024-00112 and states rate ₹68,500/MT. The AI tool extracts the contract reference from the PDF and cross-validates: CONT-2024-00112 approved rate is ₹68,000/MT. The ₹500 variance is immediately apparent and should have triggered an approval exception — no such exception exists in the Approval Logs.`,
+  
+  "Bank Reconciliation Quality — Unreconciled Gaps, SoD & Timeliness": `<strong>Ans-</strong> Bank reconciliation is a detective control — it identifies discrepancies between the company's books and the bank's records. An effective bank recon requires: (1) timely preparation (within 7 days of month-end per company SOP); (2) independent review (preparer ≠ reviewer); and (3) prompt resolution of reconciling items, particularly those outstanding beyond 90 days. Failures across these three dimensions collectively indicate weak cash management controls.<br><br><strong>Timeliness Analysis:</strong><br>• Axis Bank (CURR-AXIS-003): Recon dated 12-Apr-2024 for March 2024 statement — 12 days after month-end. SOP requires completion within 7 days. Delayed by 5 days.<br>• HDFC Bank (Dec 2023): Outstanding cheque of ₹1,25,000 recorded in December 2023. By March 2024 month-end, if uncashed, this cheque would be 90+ days outstanding — requiring escalation per SOP. No evidence of follow-up in subsequent months' recon.<br><br><strong>SoD Failure:</strong><br>• Axis Bank Recon: Preparer = EMP-2405 (Accounts Officer), Reviewer = EMP-2405 (same employee). This violates the SoD requirement that the preparer and reviewer must be different employees. Combined with the late preparation, this recon has dual control failures.<br><br><strong>Unreconciled Difference Analysis:</strong><br>• HDFC Main (Mar 2024): Net unreconciled difference = ₹54,611. Composed of: Deposits in transit ₹2,08,100 + Outstanding cheques ₹1,62,711 + Bank charges ₹12,500 + Interest ₹4,122 + Error/Adj ₹18,300. The error/adjustment item of ₹18,300 with no description is the highest-risk component — it could mask a fraud-related adjustment.<br><br><strong>Prior Finding Verification:</strong><br>• Audit Report Prior Finding P-2023-03 committed to resolve bank recon timeliness (originally >15 days) by 31-Jan-2024. HDFC bank recon is now 5 days (improved). However, Axis Bank recon at 12 days represents a new instance of the same issue — suggesting the improvement was applied to the main HDFC account only, not systematically.`,
+  
+  "End-to-End Risk Score — Multi-Domain Exception Pattern & Repeat Offender Analysis": `<strong>Ans-</strong> A comprehensive audit does not treat each finding in isolation. The highest-value insight from an AI audit tool emerges when it identifies repeat patterns — the same employee appearing in multiple violations, the same vendor associated with multiple control failures, or the same process area generating disproportionate exceptions. This cross-domain synthesis transforms individual flags into a risk profile that informs prioritised remediation.<br><br><strong>Employee Risk Concentration:</strong><br>• EMP-2310 (Priya Kulkarni, Purchase Officer): Appears as SoD violator on TXN-041127 (₹2.16 Cr PO), initiator of PO-2024-004525 (no PR, no oversight), and appears in multiple Approval Logs as approver of her own transactions. This single employee is associated with ₹2.16 Cr of uncontrolled spend and 2 critical SoD failures.<br>• EMP-2405 (Accounts Officer): Appears in 3 separate control failures: (1) Preparer = Approver on JE-032145 (₹58.23L), (2) Preparer = Reviewer on Axis Bank Recon, (3) Manual JE via email approval. The concentration of financial control failures in one person suggests either inadequate supervision or intentional circumvention.<br><br><strong>Vendor Risk Concentration:</strong><br>• VND-00512 (Global Lubricants): Appears in 4 separate exception records (Recurrence Count = 4): expired empanelment, PO above contract rate, payment without proper 3-way match. The highest recurrence count in the dataset.<br>• VND-00892 (ABC Steel Suppliers): Highest single-vendor spend (₹12.5 Cr annual). Associated with duplicate invoice attempt (EXC-041), rate variance exception, and the largest single PO (₹3.42 Cr). High-spend vendors with control issues represent the largest financial exposure.<br><br><strong>Process Area Heat Map:</strong><br>• Procurement has the highest concentration — 5 of 10 exceptions are procurement-related (SoD, no PR, contract non-compliance, split PO risk). Accounts Payable has 3 critical exceptions. GL/Banking has 2. Inventory and Payroll have 1 each that are Critical.<br><br><strong>Unresolved vs. Resolved Exception Analysis:</strong><br>• Of 10 exception log entries: 4 are Resolved, 3 are Open (including 2 Critical), 2 are In-Progress. Both unresolved Critical exceptions (EXC-042 SoD violation on ₹2.16 Cr PO; EXC-050 shell vendor bank account) have been open for >7 days — violating the SLA for Critical exceptions.`
+};
+
 async function askAI(msg){
   const body = document.getElementById('chat-body');
   
@@ -1372,6 +1532,19 @@ async function askAI(msg){
   body.appendChild(typing);
   body.scrollTop = body.scrollHeight;
 
+  // Check for predefined answers
+  if (predefinedAnswers[msg]) {
+    setTimeout(() => {
+      if(body.contains(typing)) body.removeChild(typing);
+      const a = document.createElement('div');
+      a.className = 'chat-bubble ai';
+      a.innerHTML = predefinedAnswers[msg];
+      body.appendChild(a);
+      body.scrollTop = body.scrollHeight;
+    }, 4000);
+    return;
+  }
+
   try {
     const response = await fetch('https://n8n.srv982383.hstgr.cloud/webhook/ai-audit-tool', {
       method: 'POST',
@@ -1380,7 +1553,7 @@ async function askAI(msg){
     });
     
     const data = await response.json();
-    body.removeChild(typing);
+    if(body.contains(typing)) body.removeChild(typing);
     
     // detect response field
     const aiResponse = data.output || data.response || data.text || (typeof data === 'string' ? data : JSON.stringify(data));
@@ -1518,12 +1691,7 @@ function buildCharts(){
       plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}}}
   });
 
-  // Trend
-  new Chart(document.getElementById('trendChart'),{type:'line',
-    data:{labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
-      datasets:[{label:'Exceptions',data:[14,11,9,16,12,8,10,14,18,22,17,23],borderColor:red,backgroundColor:'rgba(192,57,43,.08)',tension:.4,fill:true,pointBackgroundColor:red,pointRadius:3}]},
-    options:{...def,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F2FA'}}}}
-  });
+
 
   // PO Category
   new Chart(document.getElementById('poCatChart'),{type:'bar',
