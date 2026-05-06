@@ -516,8 +516,9 @@ body.chat-open .sub-navbar {
 .chat-bubble.user{background:var(--blue-accent);color:#fff;border-bottom-right-radius:4px;}
 
 .chat-suggestions-panel{
-  width:260px;background:var(--bg);border-left:1px solid var(--border);
+  width:280px;background:var(--bg);border-left:1px solid var(--border);
   padding:1.5rem;display:flex;flex-direction:column;gap:1rem;
+  overflow-y:auto;
 }
 .suggestion-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px;}
 .suggestion-btn{
@@ -764,8 +765,8 @@ body.chat-open .sub-navbar {
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-toggle" onclick="toggleSidebar()">←</div>
-      <div class="nav-section-title">Dashboard</div>
-      <div class="nav-item active" onclick="showTab('overview')"><span class="nav-icon">🏠</span> <span class="nav-text">Overview</span></div>
+      <div class="nav-section-title">Overview</div>
+      <div class="nav-item active" onclick="showTab('overview')"><span class="nav-icon">🏠</span> <span class="nav-text">Dashboard</span></div>
       
       <div class="sidebar-excel-group">
         <div class="nav-section-title">Excel Data</div>
@@ -787,7 +788,7 @@ body.chat-open .sub-navbar {
       <div class="tab-panel active" id="tab-overview">
         <div class="page-header">
           <div>
-            <div class="page-title">AI Audit Report - Audit AI Intelligence</div>
+            <div class="page-title">Execution Dashboard</div>
           </div>
           <div class="audit-score-ring">
             <svg viewBox="0 0 80 80">
@@ -798,7 +799,7 @@ body.chat-open .sub-navbar {
             </svg>
             <div class="score-inner">
               <div class="score-num">35</div>
-              <div class="score-label">Score</div>
+              <div class="score-label">Risk Score</div>
             </div>
           </div>
 
@@ -1321,16 +1322,16 @@ body.chat-open .sub-navbar {
   </div>
   <div class="chat-suggestions-panel">
     <div class="suggestion-title">Suggested Inquiries</div>
-    <button class="suggestion-btn" onclick="askAI('3-Way Match Integrity — PO ↔ GRN ↔ Invoice Cross-Validation')">3-Way Match Integrity — Cross-Validation</button>
-    <button class="suggestion-btn" onclick="askAI('Vendor Integrity — Duplicate, Shell & Conflict-of-Interest Detection')">Vendor Integrity — Detection</button>
-    <button class="suggestion-btn" onclick="askAI('Segregation of Duties — Initiator = Approver Violations Across All Transactions')">Segregation of Duties Violations</button>
-    <button class="suggestion-btn" onclick="askAI('Ghost Employee Detection — Salary Paid vs. Attendance, Login & HR Status')">Ghost Employee Detection</button>
-    <button class="suggestion-btn" onclick="askAI('Inventory Variance & Shrinkage — Book vs. Physical Count Analysis')">Inventory Variance & Shrinkage</button>
-    <button class="suggestion-btn" onclick="askAI('Payment Control Failures — Early Payments, Bank Account Changes & Cash Payments')">Payment Control Failures</button>
-    <button class="suggestion-btn" onclick="askAI('Manual Journal Entry Analysis — SoD, Timing, Round Numbers & Backdating')">Manual Journal Entry Analysis</button>
-    <button class="suggestion-btn" onclick="askAI('Contract Compliance — PO Rate vs. Contract Rate Variance & Expired Contract Transactions')">Contract Compliance — PO Rate</button>
-    <button class="suggestion-btn" onclick="askAI('Bank Reconciliation Quality — Unreconciled Gaps, SoD & Timeliness')">Bank Reconciliation Quality</button>
-    <button class="suggestion-btn" onclick="askAI('End-to-End Risk Score — Multi-Domain Exception Pattern & Repeat Offender Analysis')">End-to-End Risk Score</button>
+    <button class="suggestion-btn" onclick="askAI('3-Way Match Integrity — PO ↔ GRN ↔ Invoice Cross-Validation')">3-Way Match Integrity — PO ↔ GRN ↔ Invoice Cross-Validation</button>
+    <button class="suggestion-btn" onclick="askAI('Vendor Integrity — Duplicate, Shell & Conflict-of-Interest Detection')">Vendor Integrity — Duplicate, Shell & Conflict-of-Interest Detection</button>
+    <button class="suggestion-btn" onclick="askAI('Segregation of Duties — Initiator = Approver Violations Across All Transactions')">Segregation of Duties — Initiator = Approver Violations Across All Transactions</button>
+    <button class="suggestion-btn" onclick="askAI('Ghost Employee Detection — Salary Paid vs. Attendance, Login & HR Status')">Ghost Employee Detection — Salary Paid vs. Attendance, Login & HR Status</button>
+    <button class="suggestion-btn" onclick="askAI('Inventory Variance & Shrinkage — Book vs. Physical Count Analysis')">Inventory Variance & Shrinkage — Book vs. Physical Count Analysis</button>
+    <button class="suggestion-btn" onclick="askAI('Payment Control Failures — Early Payments, Bank Account Changes & Cash Payments')">Payment Control Failures — Early Payments, Bank Account Changes & Cash Payments</button>
+    <button class="suggestion-btn" onclick="askAI('Manual Journal Entry Analysis — SoD, Timing, Round Numbers & Backdating')">Manual Journal Entry Analysis — SoD, Timing, Round Numbers & Backdating</button>
+    <button class="suggestion-btn" onclick="askAI('Contract Compliance — PO Rate vs. Contract Rate Variance & Expired Contract Transactions')">Contract Compliance — PO Rate vs. Contract Rate Variance & Expired Contract Transactions</button>
+    <button class="suggestion-btn" onclick="askAI('Bank Reconciliation Quality — Unreconciled Gaps, SoD & Timeliness')">Bank Reconciliation Quality — Unreconciled Gaps, SoD & Timeliness</button>
+    <button class="suggestion-btn" onclick="askAI('End-to-End Risk Score — Multi-Domain Exception Pattern & Repeat Offender Analysis')">End-to-End Risk Score — Multi-Domain Exception Pattern & Repeat Offender Analysis</button>
   </div>
 
 
